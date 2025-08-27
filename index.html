@@ -1,0 +1,1162 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>StockMind - Control de Inventario Inteligente</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+</head>
+<body>
+    <!-- Agregando sección de registro completa al login -->
+    <!-- Página de Login/Registro -->
+    <div id="loginPage" class="login-container">
+        <div class="login-card">
+            <!-- Agregando logo al login -->
+            <div class="logo">
+                <img src="public/stockmind-logo.png" alt="StockMind Logo" class="logo-image">
+                <div class="logo-text">
+                    <h1>StockMind</h1>
+                    <p>Control de Inventario Inteligente</p>
+                </div>
+            </div>
+            
+            <!-- Pestañas para Login/Registro -->
+            <div class="auth-tabs">
+                <button class="tab-btn active" data-tab="login">Iniciar Sesión</button>
+                <button class="tab-btn" data-tab="register">Registrarse</button>
+            </div>
+
+            <!-- Formulario de Login -->
+            <form id="loginForm" class="auth-form active">
+                <div class="form-group">
+                    <label for="loginEmail">Correo Electrónico</label>
+                    <input type="email" id="loginEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="loginPassword">Contraseña</label>
+                    <input type="password" id="loginPassword" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="rememberMe">
+                        <span class="checkmark"></span>
+                        Recordarme
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary">Iniciar Sesión</button>
+                <div class="form-footer">
+                    <a href="#" class="forgot-password">¿Olvidaste tu contraseña?</a>
+                </div>
+            </form>
+
+            <!-- Formulario de Registro -->
+            <form id="registerForm" class="auth-form">
+                <div class="form-group">
+                    <label for="companyName">Nombre de la Empresa</label>
+                    <input type="text" id="companyName" name="companyName" required>
+                </div>
+                <div class="form-group">
+                    <label for="fullName">Nombre Completo</label>
+                    <input type="text" id="fullName" name="fullName" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerEmail">Correo Electrónico</label>
+                    <input type="email" id="registerEmail" name="email" required>
+                </div>
+                <div class="form-group">
+                    <label for="phone">Teléfono</label>
+                    <input type="tel" id="phone" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="registerPassword">Contraseña</label>
+                    <input type="password" id="registerPassword" name="password" required>
+                </div>
+                <div class="form-group">
+                    <label for="confirmPassword">Confirmar Contraseña</label>
+                    <input type="password" id="confirmPassword" name="confirmPassword" required>
+                </div>
+                <div class="form-group">
+                    <label class="checkbox-label">
+                        <input type="checkbox" id="acceptTerms" required>
+                        <span class="checkmark"></span>
+                        Acepto los <a href="#">términos y condiciones</a>
+                    </label>
+                </div>
+                <button type="submit" class="btn btn-primary">Crear Cuenta</button>
+                <div class="form-footer">
+                    <p>Prueba gratuita de 30 días • Sin tarjeta de crédito</p>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Dashboard Principal -->
+    <div id="dashboard" class="dashboard">
+        <!-- Header responsive -->
+        <header class="header">
+            <div class="container">
+                <div class="header-content">
+                    <div class="header-left">
+                        <button class="menu-toggle" id="menuToggle">☰</button>
+                        <!-- Agregando logo al header junto con el texto -->
+                        <div class="header-brand">
+                            <img src="public/stockmind-logo.png" alt="StockMind Logo" class="header-logo">
+                            <div class="brand-text">
+                                <h1 class="header-title">StockMind</h1>
+                                <p class="header-subtitle">Control de Inventario Inteligente</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="header-right">
+                        <!-- Agregando dropdown al perfil de usuario -->
+                        <div class="user-info" id="userInfo">
+                            <div class="user-avatar">A</div>
+                            <span class="hidden-mobile">Admin Usuario</span>
+                            <div class="user-dropdown" id="userDropdown">
+                                <a href="#" class="dropdown-item" onclick="editProfile()">
+                                    <span class="dropdown-icon">👤</span>
+                                    Editar Perfil
+                                </a>
+                                <a href="#" class="dropdown-item" onclick="viewSettings()">
+                                    <span class="dropdown-icon">⚙️</span>
+                                    Configuración
+                                </a>
+                                <a href="#" class="dropdown-item" onclick="viewNotifications()">
+                                    <span class="dropdown-icon">🔔</span>
+                                    Notificaciones
+                                </a>
+                                <a href="#" class="dropdown-item" onclick="logout()">
+                                    <span class="dropdown-icon">🚪</span>
+                                    Cerrar Sesión
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-layout">
+            <!-- Removiendo clase mobile-hidden del sidebar -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-content">
+                    <nav>
+                        <ul class="nav-menu">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link active" data-view="dashboard">
+                                    <span class="nav-icon">📊</span>
+                                    Panel Principal
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link" data-view="inventory">
+                                    <span class="nav-icon">📦</span>
+                                    Inventario
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link" data-view="products">
+                                    <span class="nav-icon">🏷️</span>
+                                    Productos
+                                </a>
+                            </li>
+                            <!-- Agregando secciones faltantes para control completo de inventario -->
+                            <li class="nav-item">
+                                <a href="#" class="nav-link" data-view="suppliers">
+                                    <span class="nav-icon">🏭</span>
+                                    Proveedores
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link" data-view="orders">
+                                    <span class="nav-icon">📋</span>
+                                    Órdenes de Compra
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link" data-view="movements">
+                                    <span class="nav-icon">🔄</span>
+                                    Movimientos
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link" data-view="warehouses">
+                                    <span class="nav-icon">🏪</span>
+                                    Almacenes
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link" data-view="analytics">
+                                    <span class="nav-icon">📈</span>
+                                    Análisis
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link" data-view="ai">
+                                    <span class="nav-icon">🤖</span>
+                                    IA Recomendaciones
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link" data-view="reports">
+                                    <span class="nav-icon">📊</span>
+                                    Reportes
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link" data-view="settings">
+                                    <span class="nav-icon">⚙️</span>
+                                    Configuración
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Contenido principal responsive -->
+            <main class="content">
+                <!-- Vista Dashboard -->
+                <div id="dashboardView" class="view active">
+                    <h2>Panel Principal</h2>
+                    
+                    <!-- Grid de estadísticas responsive -->
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Total Productos</span>
+                                <span class="stat-icon">📦</span>
+                            </div>
+                            <div class="stat-value">1,247</div>
+                            <div class="stat-change positive">+12% vs mes anterior</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Stock Bajo</span>
+                                <span class="stat-icon">⚠️</span>
+                            </div>
+                            <div class="stat-value">23</div>
+                            <div class="stat-change negative">Requiere atención</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Valor Inventario</span>
+                                <span class="stat-icon">💰</span>
+                            </div>
+                            <!-- Cambiando moneda a córdobas nicaragüenses -->
+                            <div class="stat-value">C$ 27,847,392</div>
+                            <div class="stat-change positive">+8.5% este mes</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Rotación</span>
+                                <span class="stat-icon">🔄</span>
+                            </div>
+                            <div class="stat-value">4.2x</div>
+                            <div class="stat-change positive">Óptimo</div>
+                        </div>
+                    </div>
+
+                    <!-- Sección de IA responsive -->
+                    <div class="ai-section">
+                        <div class="ai-header">
+                            <span class="ai-icon">🤖</span>
+                            <h3>Recomendaciones de Inteligencia Artificial</h3>
+                        </div>
+                        <div class="recommendations-grid">
+                            <div class="recommendation-card">
+                                <div class="recommendation-title">Reabastecimiento Urgente</div>
+                                <div class="recommendation-desc">15 productos necesitan reabastecimiento en los próximos 7 días</div>
+                                <button class="recommendation-action">Ver Detalles</button>
+                            </div>
+                            <div class="recommendation-card">
+                                <div class="recommendation-title">Optimización de Costos</div>
+                                <!-- Actualizando valores a córdobas -->
+                                <div class="recommendation-desc">Potencial ahorro de C$ 408,450 optimizando proveedores</div>
+                                <button class="recommendation-action">Analizar</button>
+                            </div>
+                            <div class="recommendation-card">
+                                <div class="recommendation-title">Predicción Estacional</div>
+                                <div class="recommendation-desc">Incremento esperado del 25% en demanda próximo trimestre</div>
+                                <button class="recommendation-action">Planificar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Tabla responsive -->
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Actividad Reciente</h3>
+                            <div class="table-actions">
+                                <button class="btn btn-secondary">Exportar</button>
+                                <button class="btn btn-primary">Nuevo Movimiento</button>
+                            </div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Producto</th>
+                                        <th>Tipo</th>
+                                        <th>Cantidad</th>
+                                        <th>Estado</th>
+                                        <th>Fecha</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Laptop Dell XPS 13</td>
+                                        <td>Entrada</td>
+                                        <td>+25</td>
+                                        <td><span class="status-badge status-high">Completado</span></td>
+                                        <td>15/01/2024</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Mouse Logitech MX</td>
+                                        <td>Salida</td>
+                                        <td>-12</td>
+                                        <td><span class="status-badge status-medium">Procesando</span></td>
+                                        <td>14/01/2024</td>
+                                    </tr>
+                                    <tr>
+                                        <td>Teclado Mecánico</td>
+                                        <td>Ajuste</td>
+                                        <td>-3</td>
+                                        <td><span class="status-badge status-low">Pendiente</span></td>
+                                        <td>13/01/2024</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Agregando vistas completas para todas las secciones de inventario -->
+                <!-- Vista Inventario -->
+                <div id="inventoryView" class="view" style="display: none;">
+                    <h2>Gestión de Inventario</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Productos en Stock</span>
+                                <span class="stat-icon">📦</span>
+                            </div>
+                            <div class="stat-value">1,224</div>
+                            <div class="stat-change positive">98.2% disponible</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Stock Crítico</span>
+                                <span class="stat-icon">🚨</span>
+                            </div>
+                            <div class="stat-value">23</div>
+                            <div class="stat-change negative">Acción requerida</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Inventario Actual</h3>
+                            <div class="table-actions">
+                                <button class="btn btn-secondary">Filtrar</button>
+                                <button class="btn btn-primary">Agregar Producto</button>
+                            </div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Producto</th>
+                                        <th>Categoría</th>
+                                        <th>Stock Actual</th>
+                                        <th>Stock Mínimo</th>
+                                        <th>Precio Unitario</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>LAP001</td>
+                                        <td>Laptop Dell XPS 13</td>
+                                        <td>Electrónicos</td>
+                                        <td>45</td>
+                                        <td>10</td>
+                                        <td>C$ 32,500</td>
+                                        <td><span class="status-badge status-high">Normal</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>MOU002</td>
+                                        <td>Mouse Logitech MX</td>
+                                        <td>Accesorios</td>
+                                        <td>8</td>
+                                        <td>15</td>
+                                        <td>C$ 2,850</td>
+                                        <td><span class="status-badge status-low">Stock Bajo</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vista Productos -->
+                <div id="productsView" class="view" style="display: none;">
+                    <h2>Catálogo de Productos</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Total Productos</span>
+                                <span class="stat-icon">🏷️</span>
+                            </div>
+                            <div class="stat-value">1,247</div>
+                            <div class="stat-change positive">+15 este mes</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Categorías</span>
+                                <span class="stat-icon">📂</span>
+                            </div>
+                            <div class="stat-value">24</div>
+                            <div class="stat-change positive">Bien organizadas</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Productos Registrados</h3>
+                            <div class="table-actions">
+                                <button class="btn btn-secondary">Importar</button>
+                                <button class="btn btn-primary">Nuevo Producto</button>
+                            </div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Código</th>
+                                        <th>Nombre</th>
+                                        <th>Descripción</th>
+                                        <th>Categoría</th>
+                                        <th>Proveedor</th>
+                                        <th>Precio Compra</th>
+                                        <th>Precio Venta</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>LAP001</td>
+                                        <td>Laptop Dell XPS 13</td>
+                                        <td>Laptop ultrabook 13" Intel i7</td>
+                                        <td>Electrónicos</td>
+                                        <td>Dell Nicaragua</td>
+                                        <td>C$ 28,000</td>
+                                        <td>C$ 32,500</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vista Proveedores -->
+                <div id="suppliersView" class="view" style="display: none;">
+                    <h2>Gestión de Proveedores</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Proveedores Activos</span>
+                                <span class="stat-icon">🏭</span>
+                            </div>
+                            <div class="stat-value">47</div>
+                            <div class="stat-change positive">+3 este mes</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Evaluación Promedio</span>
+                                <span class="stat-icon">⭐</span>
+                            </div>
+                            <div class="stat-value">4.2/5</div>
+                            <div class="stat-change positive">Excelente</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Lista de Proveedores</h3>
+                            <div class="table-actions">
+                                <button class="btn btn-secondary">Evaluar</button>
+                                <button class="btn btn-primary">Nuevo Proveedor</button>
+                            </div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Empresa</th>
+                                        <th>Contacto</th>
+                                        <th>Teléfono</th>
+                                        <th>Productos</th>
+                                        <th>Evaluación</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Dell Nicaragua</td>
+                                        <td>Carlos Mendoza</td>
+                                        <td>+505 2255-1234</td>
+                                        <td>Laptops, Servidores</td>
+                                        <td>4.8/5</td>
+                                        <td><span class="status-badge status-high">Activo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Logitech Centroamérica</td>
+                                        <td>Ana García</td>
+                                        <td>+505 2244-5678</td>
+                                        <td>Periféricos</td>
+                                        <td>4.5/5</td>
+                                        <td><span class="status-badge status-high">Activo</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vista Órdenes de Compra -->
+                <div id="ordersView" class="view" style="display: none;">
+                    <h2>Órdenes de Compra</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Órdenes Pendientes</span>
+                                <span class="stat-icon">📋</span>
+                            </div>
+                            <div class="stat-value">12</div>
+                            <div class="stat-change positive">En proceso</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Valor Total Mes</span>
+                                <span class="stat-icon">💰</span>
+                            </div>
+                            <div class="stat-value">C$ 2,450,000</div>
+                            <div class="stat-change positive">+15% vs anterior</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Órdenes Recientes</h3>
+                            <div class="table-actions">
+                                <button class="btn btn-secondary">Filtrar</button>
+                                <button class="btn btn-primary">Nueva Orden</button>
+                            </div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>N° Orden</th>
+                                        <th>Proveedor</th>
+                                        <th>Fecha</th>
+                                        <th>Total</th>
+                                        <th>Estado</th>
+                                        <th>Entrega Esperada</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>OC-2024-001</td>
+                                        <td>Dell Nicaragua</td>
+                                        <td>15/01/2024</td>
+                                        <td>C$ 812,500</td>
+                                        <td><span class="status-badge status-medium">En Tránsito</span></td>
+                                        <td>20/01/2024</td>
+                                    </tr>
+                                    <tr>
+                                        <td>OC-2024-002</td>
+                                        <td>Logitech CA</td>
+                                        <td>14/01/2024</td>
+                                        <td>C$ 142,500</td>
+                                        <td><span class="status-badge status-high">Entregado</span></td>
+                                        <td>18/01/2024</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vista Movimientos -->
+                <div id="movementsView" class="view" style="display: none;">
+                    <h2>Movimientos de Inventario</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Movimientos Hoy</span>
+                                <span class="stat-icon">🔄</span>
+                            </div>
+                            <div class="stat-value">47</div>
+                            <div class="stat-change positive">Alta actividad</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Entradas vs Salidas</span>
+                                <span class="stat-icon">⚖️</span>
+                            </div>
+                            <div class="stat-value">+15%</div>
+                            <div class="stat-change positive">Balance positivo</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Historial de Movimientos</h3>
+                            <div class="table-actions">
+                                <button class="btn btn-secondary">Exportar</button>
+                                <button class="btn btn-primary">Registrar Movimiento</button>
+                            </div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Fecha/Hora</th>
+                                        <th>Producto</th>
+                                        <th>Tipo</th>
+                                        <th>Cantidad</th>
+                                        <th>Almacén</th>
+                                        <th>Usuario</th>
+                                        <th>Observaciones</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>15/01/2024 14:30</td>
+                                        <td>Laptop Dell XPS 13</td>
+                                        <td>Entrada</td>
+                                        <td>+25</td>
+                                        <td>Almacén Principal</td>
+                                        <td>Admin</td>
+                                        <td>Recepción OC-2024-001</td>
+                                    </tr>
+                                    <tr>
+                                        <td>15/01/2024 10:15</td>
+                                        <td>Mouse Logitech MX</td>
+                                        <td>Salida</td>
+                                        <td>-12</td>
+                                        <td>Almacén Principal</td>
+                                        <td>Vendedor1</td>
+                                        <td>Venta cliente corporativo</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vista Almacenes -->
+                <div id="warehousesView" class="view" style="display: none;">
+                    <h2>Gestión de Almacenes</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Almacenes Activos</span>
+                                <span class="stat-icon">🏪</span>
+                            </div>
+                            <div class="stat-value">3</div>
+                            <div class="stat-change positive">Operativos</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Capacidad Utilizada</span>
+                                <span class="stat-icon">📊</span>
+                            </div>
+                            <div class="stat-value">78%</div>
+                            <div class="stat-change positive">Óptimo</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Lista de Almacenes</h3>
+                            <div class="table-actions">
+                                <button class="btn btn-secondary">Ver Mapa</button>
+                                <button class="btn btn-primary">Nuevo Almacén</button>
+                            </div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Nombre</th>
+                                        <th>Ubicación</th>
+                                        <th>Capacidad</th>
+                                        <th>Ocupación</th>
+                                        <th>Productos</th>
+                                        <th>Estado</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Almacén Principal</td>
+                                        <td>Managua Centro</td>
+                                        <td>1,500 m²</td>
+                                        <td>85%</td>
+                                        <td>847</td>
+                                        <td><span class="status-badge status-high">Activo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Almacén Norte</td>
+                                        <td>Estelí</td>
+                                        <td>800 m²</td>
+                                        <td>65%</td>
+                                        <td>234</td>
+                                        <td><span class="status-badge status-high">Activo</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Almacén Sur</td>
+                                        <td>Granada</td>
+                                        <td>600 m²</td>
+                                        <td>45%</td>
+                                        <td>166</td>
+                                        <td><span class="status-badge status-medium">Mantenimiento</span></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vista Análisis -->
+                <div id="analyticsView" class="view" style="display: none;">
+                    <h2>Análisis y Reportes</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Rotación Promedio</span>
+                                <span class="stat-icon">🔄</span>
+                            </div>
+                            <div class="stat-value">4.2x</div>
+                            <div class="stat-change positive">Excelente</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Margen Promedio</span>
+                                <span class="stat-icon">📈</span>
+                            </div>
+                            <div class="stat-value">16.1%</div>
+                            <div class="stat-change positive">+2.3% vs anterior</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Productos Lentos</span>
+                                <span class="stat-icon">🐌</span>
+                            </div>
+                            <div class="stat-value">34</div>
+                            <div class="stat-change negative">Revisar estrategia</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Precisión Inventario</span>
+                                <span class="stat-icon">🎯</span>
+                            </div>
+                            <div class="stat-value">97.8%</div>
+                            <div class="stat-change positive">Muy bueno</div>
+                        </div>
+                    </div>
+
+                    <div class="ai-section">
+                        <div class="ai-header">
+                            <span class="ai-icon">📊</span>
+                            <h3>Análisis Inteligente</h3>
+                        </div>
+                        <div class="recommendations-grid">
+                            <div class="recommendation-card">
+                                <div class="recommendation-title">Tendencia de Ventas</div>
+                                <div class="recommendation-desc">Las ventas han aumentado 15% en los últimos 30 días</div>
+                                <button class="recommendation-action">Ver Detalles</button>
+                            </div>
+                            <div class="recommendation-card">
+                                <div class="recommendation-title">Productos Estrella</div>
+                                <div class="recommendation-desc">5 productos generan el 40% de las ganancias</div>
+                                <button class="recommendation-action">Analizar</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vista IA Recomendaciones -->
+                <div id="aiView" class="view" style="display: none;">
+                    <h2>Inteligencia Artificial - Recomendaciones</h2>
+                    
+                    <div class="ai-section">
+                        <div class="ai-header">
+                            <span class="ai-icon">🤖</span>
+                            <h3>Centro de Inteligencia Artificial</h3>
+                        </div>
+                        <div class="recommendations-grid">
+                            <div class="recommendation-card">
+                                <div class="recommendation-title">Predicción de Demanda</div>
+                                <div class="recommendation-desc">Basado en histórico y tendencias estacionales</div>
+                                <button class="recommendation-action">Ver Predicciones</button>
+                            </div>
+                            <div class="recommendation-card">
+                                <div class="recommendation-title">Optimización de Stock</div>
+                                <div class="recommendation-desc">Niveles óptimos para minimizar costos</div>
+                                <button class="recommendation-action">Optimizar</button>
+                            </div>
+                            <div class="recommendation-card">
+                                <div class="recommendation-title">Detección de Anomalías</div>
+                                <div class="recommendation-desc">Identificación automática de irregularidades</div>
+                                <button class="recommendation-action">Revisar</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Recomendaciones Activas</h3>
+                            <div class="table-actions">
+                                <button class="btn btn-secondary">Configurar IA</button>
+                                <button class="btn btn-primary">Generar Reporte</button>
+                            </div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo</th>
+                                        <th>Producto/Categoría</th>
+                                        <th>Recomendación</th>
+                                        <th>Impacto Estimado</th>
+                                        <th>Prioridad</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Reabastecimiento</td>
+                                        <td>Mouse Logitech MX</td>
+                                        <td>Ordenar 50 unidades</td>
+                                        <td>C$ 142,500</td>
+                                        <td><span class="status-badge status-low">Alta</span></td>
+                                        <td><button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Aplicar</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Liquidación</td>
+                                        <td>Teclados Antiguos</td>
+                                        <td>Descuento del 30%</td>
+                                        <td>C$ 45,000</td>
+                                        <td><span class="status-badge status-medium">Media</span></td>
+                                        <td><button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Revisar</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vista Reportes -->
+                <div id="reportsView" class="view" style="display: none;">
+                    <h2>Reportes</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Reportes Generados</span>
+                                <span class="stat-icon">📊</span>
+                            </div>
+                            <div class="stat-value">127</div>
+                            <div class="stat-change positive">Este mes</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Reportes Automáticos</span>
+                                <span class="stat-icon">🤖</span>
+                            </div>
+                            <div class="stat-value">15</div>
+                            <div class="stat-change positive">Configurados</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Tipos de Reportes Disponibles</h3>
+                            <div class="table-actions">
+                                <button class="btn btn-secondary">Programar</button>
+                                <button class="btn btn-primary">Generar Reporte</button>
+                            </div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Tipo de Reporte</th>
+                                        <th>Descripción</th>
+                                        <th>Frecuencia</th>
+                                        <th>Último Generado</th>
+                                        <th>Estado</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Inventario General</td>
+                                        <td>Estado completo del inventario</td>
+                                        <td>Diario</td>
+                                        <td>15/01/2024</td>
+                                        <td><span class="status-badge status-high">Activo</span></td>
+                                        <td><button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Generar</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Stock Bajo</td>
+                                        <td>Productos con stock crítico</td>
+                                        <td>Semanal</td>
+                                        <td>12/01/2024</td>
+                                        <td><span class="status-badge status-high">Activo</span></td>
+                                        <td><button class="btn btn-primary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Generar</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Análisis de Ventas</td>
+                                        <td>Rendimiento de productos</td>
+                                        <td>Mensual</td>
+                                        <td>01/01/2024</td>
+                                        <td><span class="status-badge status-medium">Programado</span></td>
+                                        <td><button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Configurar</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Vista Configuración -->
+                <div id="settingsView" class="view" style="display: none;">
+                    <h2>Configuración del Sistema</h2>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Usuarios Activos</span>
+                                <span class="stat-icon">👥</span>
+                            </div>
+                            <div class="stat-value">12</div>
+                            <div class="stat-change positive">En línea</div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-header">
+                                <span class="stat-title">Respaldo Automático</span>
+                                <span class="stat-icon">💾</span>
+                            </div>
+                            <div class="stat-value">✓</div>
+                            <div class="stat-change positive">Configurado</div>
+                        </div>
+                    </div>
+
+                    <div class="table-container">
+                        <div class="table-header">
+                            <h3 class="table-title">Configuraciones Generales</h3>
+                            <div class="table-actions">
+                                <button class="btn btn-secondary">Exportar Config</button>
+                                <button class="btn btn-primary">Guardar Cambios</button>
+                            </div>
+                        </div>
+                        <div class="table-wrapper">
+                            <table class="table">
+                                <thead>
+                                    <tr>
+                                        <th>Configuración</th>
+                                        <th>Descripción</th>
+                                        <th>Valor Actual</th>
+                                        <th>Estado</th>
+                                        <th>Acción</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <tr>
+                                        <td>Moneda Base</td>
+                                        <td>Moneda principal del sistema</td>
+                                        <td>Córdoba Nicaragüense (C$)</td>
+                                        <td><span class="status-badge status-high">Activo</span></td>
+                                        <td><button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Cambiar</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Zona Horaria</td>
+                                        <td>Zona horaria del sistema</td>
+                                        <td>GMT-6 (Managua)</td>
+                                        <td><span class="status-badge status-high">Activo</span></td>
+                                        <td><button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Cambiar</button></td>
+                                    </tr>
+                                    <tr>
+                                        <td>Alertas de Stock</td>
+                                        <td>Notificaciones automáticas</td>
+                                        <td>Habilitadas</td>
+                                        <td><span class="status-badge status-high">Activo</span></td>
+                                        <td><button class="btn btn-secondary" style="padding: 0.25rem 0.5rem; font-size: 0.75rem;">Configurar</button></td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <script>
+        const tabBtns = document.querySelectorAll('.tab-btn');
+        const authForms = document.querySelectorAll('.auth-form');
+        const loginForm = document.getElementById('loginForm');
+        const registerForm = document.getElementById('registerForm');
+        const loginPage = document.getElementById('loginPage');
+        const dashboard = document.getElementById('dashboard');
+        const menuToggle = document.getElementById('menuToggle');
+        const sidebar = document.getElementById('sidebar');
+        const navLinks = document.querySelectorAll('.nav-link');
+
+        // Tab switching functionality
+        tabBtns.forEach(btn => {
+            btn.addEventListener('click', function() {
+                const targetTab = this.getAttribute('data-tab');
+                
+                // Remove active class from all tabs and forms
+                tabBtns.forEach(tab => tab.classList.remove('active'));
+                authForms.forEach(form => form.classList.remove('active'));
+                
+                // Add active class to clicked tab
+                this.classList.add('active');
+                
+                // Show corresponding form
+                if (targetTab === 'login') {
+                    loginForm.classList.add('active');
+                } else {
+                    registerForm.classList.add('active');
+                }
+            });
+        });
+
+        // Login functionality
+        loginForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            loginPage.style.display = 'none';
+            dashboard.classList.add('active');
+        });
+
+        // Register functionality
+        registerForm.addEventListener('submit', function(e) {
+            e.preventDefault();
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            
+            if (password !== confirmPassword) {
+                alert('Las contraseñas no coinciden');
+                return;
+            }
+            
+            loginPage.style.display = 'none';
+            dashboard.classList.add('active');
+        });
+
+        menuToggle.addEventListener('click', function() {
+            sidebar.classList.toggle('active');
+        });
+
+        // Navigation
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                
+                // Remove active class from all links
+                navLinks.forEach(l => l.classList.remove('active'));
+                // Add active class to clicked link
+                this.classList.add('active');
+                
+                // Hide all views
+                document.querySelectorAll('.view').forEach(view => {
+                    view.style.display = 'none';
+                });
+                
+                // Show selected view
+                const viewName = this.getAttribute('data-view');
+                const targetView = document.getElementById(viewName + 'View');
+                if (targetView) {
+                    targetView.style.display = 'block';
+                }
+                
+                if (window.innerWidth < 1400) {
+                    sidebar.classList.remove('active');
+                }
+            });
+        });
+
+        document.addEventListener('click', function(e) {
+            if (window.innerWidth < 1400) {
+                if (!sidebar.contains(e.target) && !menuToggle.contains(e.target)) {
+                    sidebar.classList.remove('active');
+                }
+            }
+        });
+
+        const userInfo = document.getElementById('userInfo');
+        const userDropdown = document.getElementById('userDropdown');
+
+        userInfo.addEventListener('click', function(e) {
+            e.stopPropagation();
+            userDropdown.classList.toggle('active');
+        });
+
+        // Cerrar dropdown al hacer clic fuera
+        document.addEventListener('click', function() {
+            userDropdown.classList.remove('active');
+        });
+
+        // Funciones del dropdown
+        function editProfile() {
+            alert('Función de editar perfil - aquí iría el formulario de edición');
+            userDropdown.classList.remove('active');
+        }
+
+        function viewSettings() {
+            alert('Función de configuración - aquí irían los ajustes del usuario');
+            userDropdown.classList.remove('active');
+        }
+
+        function viewNotifications() {
+            alert('Función de notificaciones - aquí irían las notificaciones del usuario');
+            userDropdown.classList.remove('active');
+        }
+
+        function logout() {
+            if(confirm('¿Estás seguro que deseas cerrar sesión?')) {
+                showLogin();
+            }
+            userDropdown.classList.remove('active');
+        }
+    </script>
+</body>
+</html>
