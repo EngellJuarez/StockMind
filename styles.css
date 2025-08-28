@@ -495,6 +495,26 @@ h3 {
   margin-left: 0;
 }
 
+.menu-toggle {
+  font-size: 28px;
+  width: 40px;
+  height: 40px;
+  border: none;
+  border-radius: var(--radius);
+  background-color: var(--primary);
+  color: var(--primary-foreground); 
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: background 0.2s ease;
+}
+
+.menu-toggle:hover {
+  background-color: var(--secondary); 
+  color: var(--secondary-foreground);
+}
+
 /* Solo en pantallas muy grandes el sidebar se muestra automáticamente */
 @media (min-width: 1200px) {
   .sidebar {
