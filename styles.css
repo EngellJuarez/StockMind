@@ -271,6 +271,29 @@ h3 {
 }
 
 /* Header responsive */
+
+.menu-toggle {
+  font-size: 23px;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: var(--radius);
+  background-color: var(--primary);
+  color: var(--primary-foreground);
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.15);
+}
+
+.menu-toggle:hover {
+  background-color: var(--secondary);
+  color: var(--secondary-foreground);
+  transform: translateY(-2px);
+}
+
 .header {
   background: var(--background);
   border-bottom: 1px solid var(--border);
@@ -284,7 +307,7 @@ h3 {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  flex-wrap: wrap;
+  flex-wrap: nowrap;
   gap: 1rem;
 }
 
@@ -493,26 +516,6 @@ h3 {
   width: 100%;
   transition: all 0.3s ease;
   margin-left: 0;
-}
-
-.menu-toggle {
-  font-size: 23px;
-  width: 30px;
-  height: 30px;
-  border: none;
-  border-radius: var(--radius);
-  background-color: var(--primary);
-  color: var(--primary-foreground); 
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: background 0.2s ease;
-}
-
-.menu-toggle:hover {
-  background-color: var(--secondary); 
-  color: var(--secondary-foreground);
 }
 
 /* Solo en pantallas muy grandes el sidebar se muestra automáticamente */
