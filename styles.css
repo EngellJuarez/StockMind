@@ -254,6 +254,9 @@ h3 {
 .btn-secondary {
   background-color: var(--secondary);
   color: var(--secondary-foreground);
+  display: block;
+  margin-bottom: 0.25rem;
+  width: 100%;
 }
 
 .btn-secondary:hover {
