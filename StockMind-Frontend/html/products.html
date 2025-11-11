@@ -1,0 +1,124 @@
+<div id="productsView" class="view">
+  <h2>Catálogo de Productos</h2>
+
+  <div class="stats-grid">
+    <div class="stat-card">
+      <div class="stat-header">
+        <span class="stat-title">Total Productos</span>
+        <i class="fas fa-tags stat-icon"></i>
+      </div>
+      <div class="stat-value" id="totalProductos">0</div> <!-- ID agregado -->
+      <div class="stat-change positive">Actualizado</div>
+    </div>
+
+    <div class="stat-card">
+      <div class="stat-header">
+        <span class="stat-title">Categorías</span>
+        <i class="fas fa-folder stat-icon"></i>
+      </div>
+      <div class="stat-value" id="totalCategorias">0</div> <!-- ID agregado -->
+      <div class="stat-change positive">Actualizado</div>
+    </div>
+  </div>
+
+  <div class="table-container">
+    <div class="table-header">
+      <h3 class="table-title">Productos Registrados</h3>
+      <div class="table-actions">
+        <button class="btn btn-primary" onclick="filterProductos()">Filtrar</button>
+        <button class="btn btn-success" onclick="addProducto()">Agregar</button>
+      </div>
+    </div>
+    <div class="table-wrapper">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>Código</th>
+            <th>Nombre</th>
+            <th>Descripción</th>
+            <th>Categoría</th>
+            <th>Precio Compra</th>
+            <th>Precio Venta</th>
+            <th>Acción</th>
+          </tr>
+        </thead>
+        <tbody>
+          <!-- Aquí se cargarán los productos dinámicamente desde Strapi -->
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Modal para Agregar/Editar Producto -->
+  <div id="productModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3 id="modalTitle">Agregar Producto</h3>
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <form id="productForm">
+          <input type="hidden" id="documentId" />
+          <div class="form-group">
+            <label for="nombre">Nombre</label>
+            <input type="text" id="nombre" name="Nombre" required>
+          </div>
+          <div class="form-group">
+            <label for="descripcion">Descripción</label>
+            <textarea id="descripcion" name="Descripcion" required></textarea>
+          </div>
+          <div class="form-group">
+            <label for="categoria">Categoría</label>
+            <select id="categoria" name="categoria" required>
+              <option value="">Selecciona una categoría</option>
+            </select>
+          </div>
+          <div class="form-group">
+            <label for="precioCompra">Precio Compra</label>
+            <input type="number" id="precioCompra" name="PrecioCompra" step="0.01" required>
+          </div>
+          <div class="form-group">
+            <label for="precioVenta">Precio Venta</label>
+            <input type="number" id="precioVenta" name="PrecioVenta" step="0.01" required>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="clearForm()">Limpiar</button>
+            <button type="submit" class="btn btn-success">Guardar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Filtrar -->
+  <div id="filterModal" class="modal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Filtrar Productos</h3>
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <form id="filterForm">
+          <div class="form-group">
+            <label for="filterId">Código (ID)</label>
+            <input type="number" id="filterId" name="id">
+          </div>
+          <div class="form-group">
+            <label for="filterNombre">Nombre</label>
+            <input type="text" id="filterNombre" name="Nombre">
+          </div>
+          <div class="form-group">
+            <label for="filterCategoria">Categoría</label>
+            <select id="filterCategoria" name="Categoria">
+              <option value="">Todas las categorías</option>
+            </select>
+          </div>
+          <div class="modal-actions">
+            <button type="button" class="btn btn-secondary" onclick="clearFilter()">Limpiar</button>
+            <button type="submit" class="btn btn-primary">Filtrar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+</div>

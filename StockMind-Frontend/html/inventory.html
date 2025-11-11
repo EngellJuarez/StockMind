@@ -1,0 +1,51 @@
+<div id="inventoryView" class="view">
+    <h2>Gestión de Inventario</h2>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">Productos en Stock</span>
+                <i class="fas fa-boxes stat-icon"></i>
+            </div>
+            <div class="stat-value">0</div>
+            <div class="stat-change positive">Sin datos</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">Stock Crítico</span>
+                <i class="fas fa-exclamation-circle stat-icon"></i>
+            </div>
+            <div class="stat-value">0</div>
+            <div class="stat-change negative">Sin datos</div>
+        </div>
+    </div>
+
+    <div class="table-container">
+        <div class="table-header">
+            <h3 class="table-title">Inventario Actual</h3>
+            <div class="table-actions">
+                <button class="btn btn-primary">Filtrar</button>
+                <button class="btn btn-primary">Exportar</button>
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>Código</th>
+                        <th>Producto</th>
+                        <th>Categoría</th>
+                        <th>Stock Actual</th>
+                        <th>Stock Mínimo</th>
+                        <th>Precio Unitario</th>
+                        <th>Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <!-- Sin datos -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
