@@ -2,76 +2,44 @@
 
 // Función para mostrar el login (redirige a index.html)
 function showLogin() {
-    window.location.href = '../index.html';  // Desde html/dashboard.html, vuelve a index.html
+    window.location.href = '../index.html';
 }
 
-// Elementos del DOM (solo si existen en la página actual)
-const tabBtns = document.querySelectorAll('.tab-btn');
-const authForms = document.querySelectorAll('.auth-form');
-const loginForm = document.getElementById('loginForm');
-const registerForm = document.getElementById('registerForm');
+// Elementos del DOM
 const menuToggle = document.getElementById('menuToggle');
 const sidebar = document.getElementById('sidebar');
 const navLinks = document.querySelectorAll('.nav-link');
 const userInfo = document.getElementById('userInfo');
 const userDropdown = document.getElementById('userDropdown');
-const content = document.getElementById('content');  // Contenedor para cargar vistas dinámicamente
+const content = document.getElementById('content');
 
-// Tab switching functionality (solo en index.html)
-if (tabBtns.length > 0) {
-    tabBtns.forEach(btn => {
-        btn.addEventListener('click', function () {
-            const targetTab = this.getAttribute('data-tab');
-
-            // Remove active class from all tabs and forms
-            tabBtns.forEach(tab => tab.classList.remove('active'));
-            authForms.forEach(form => form.classList.remove('active'));
-
-            // Add active class to clicked tab
-            this.classList.add('active');
-
-            // Show corresponding form
-            if (targetTab === 'login') {
-                loginForm.classList.add('active');
-            } else {
-                registerForm.classList.add('active');
-            }
-        });
-    });
-}
-
-// Login functionality (solo en index.html)
-if (loginForm) {
-    loginForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        // Redirige al dashboard y carga la vista del panel por defecto
-        window.location.href = 'html/dashboard.html';
-    });
-}
-
-// Register functionality (solo en index.html)
-if (registerForm) {
-    registerForm.addEventListener('submit', function (e) {
-        e.preventDefault();
-        const password = document.getElementById('registerPassword').value;
-        const confirmPassword = document.getElementById('confirmPassword').value;
-
-        if (password !== confirmPassword) {
-            alert('Las contraseñas no coinciden');
-            return;
+// Display User Info
+const storedUser = localStorage.getItem('stockmind_user');
+if (storedUser && userInfo) {
+    try {
+        const user = JSON.parse(storedUser);
+        const userNameElement = userInfo.querySelector('.hidden-mobile');
+        if (userNameElement) {
+            userNameElement.textContent = user.username || 'Usuario';
         }
-
-        // Redirige al dashboard y carga la vista del panel por defecto
-        window.location.href = 'html/dashboard.html';
-    });
+        const avatarElement = userInfo.querySelector('.user-avatar');
+        if (avatarElement && user.username) {
+            avatarElement.textContent = user.username.charAt(0).toUpperCase();
+        }
+    } catch (e) {
+        console.error('Error parsing user info:', e);
+    }
+} else if (!storedUser && window.location.pathname.includes('dashboard.html')) {
+    // Optional: Redirect if not logged in
+    // window.location.href = '../index.html';
 }
 
-// Función para cargar vistas dinámicamente (solo en dashboard.html)
+// Función para cargar vistas dinámicamente
 function loadView(viewName) {
     if (!content) return;
-    
+
     const viewFile = `${viewName}.html`;
-    
+
     fetch(viewFile)
         .then(response => {
             if (!response.ok) {
@@ -83,7 +51,7 @@ function loadView(viewName) {
             content.innerHTML = html;
             window.location.hash = viewName;
             loadViewScript(viewName);
-            
+
             // Resaltar el menú correcto
             navLinks.forEach(l => l.classList.remove('active'));
             const activeLink = document.querySelector(`[data-view="${viewName}"]`);
@@ -97,71 +65,64 @@ function loadView(viewName) {
 
 // Función para cargar script específico de la vista
 function loadViewScript(viewName) {
-    // Para productos, el script ya está cargado en dashboard.html
     if (viewName === 'products') {
         if (window.initProducts) window.initProducts();
     }
-    // Aquí puedes agregar más: if (viewName === 'inventory') { ... }
+    if (viewName === 'users') {
+        if (window.initUsers) window.initUsers();
+    }
+    if (viewName === 'suppliers') {
+        if (window.initSuppliers) window.initSuppliers();
+    }
 }
 
-// Navigation (solo en dashboard.html)
+// Navigation
 if (navLinks.length > 0) {
     navLinks.forEach(link => {
         link.addEventListener('click', function (e) {
             e.preventDefault();
-
-            // Remove active class from all links
             navLinks.forEach(l => l.classList.remove('active'));
-            // Add active class to clicked link
             this.classList.add('active');
-
-            // Get the view name from data-view attribute
             const viewName = this.getAttribute('data-view');
             if (viewName) {
-                loadView(viewName);  // Carga la vista dinámicamente
+                loadView(viewName);
             }
-
-            // Close sidebar on mobile
             if (window.innerWidth < 1400) {
                 sidebar.classList.remove('active');
             }
         });
     });
 
-    // Cargar vista desde hash al iniciar
     function initFromHash() {
-        const hash = window.location.hash.substring(1); // Quitar #
-        if (hash && ['panel', 'inventory', 'products', 'suppliers', 'orders', 'movements', 'warehouses', 'analytics', 'ai', 'reports', 'settings'].includes(hash)) {
+        const hash = window.location.hash.substring(1);
+        if (hash && ['panel', 'inventory', 'products', 'suppliers', 'orders', 'movements', 'warehouses', 'analytics', 'ai', 'reports', 'settings', 'users'].includes(hash)) {
             loadView(hash);
         } else {
-            loadView('panel'); // Vista por defecto
+            loadView('panel');
         }
     }
 
-    // Escuchar cambios de hash
     window.addEventListener('hashchange', () => {
         initFromHash();
     });
 
-    // Inicializar
     initFromHash();
 }
 
-// Menu toggle (solo en dashboard.html)
+// Menu toggle
 if (menuToggle && sidebar) {
     menuToggle.addEventListener('click', function () {
         sidebar.classList.toggle('active');
     });
 }
 
-// Dropdown del usuario (solo en dashboard.html)
+// Dropdown del usuario
 if (userInfo && userDropdown) {
     userInfo.addEventListener('click', function (e) {
         e.stopPropagation();
         userDropdown.classList.toggle('active');
     });
 
-    // Cerrar dropdown al hacer clic fuera
     document.addEventListener('click', function () {
         userDropdown.classList.remove('active');
     });
@@ -169,28 +130,31 @@ if (userInfo && userDropdown) {
 
 // Funciones del dropdown
 function editProfile() {
-    alert('Función de editar perfil - aquí iría el formulario de edición');
+    alert('Función de editar perfil');
     userDropdown.classList.remove('active');
 }
 
 function viewSettings() {
-    alert('Función de configuración - aquí irían los ajustes del usuario');
+    alert('Función de configuración');
     userDropdown.classList.remove('active');
 }
 
 function viewNotifications() {
-    alert('Función de notificaciones - aquí irían las notificaciones del usuario');
+    alert('Función de notificaciones');
     userDropdown.classList.remove('active');
 }
 
 function logout() {
     if (confirm('¿Estás seguro que deseas cerrar sesión?')) {
+        localStorage.removeItem('stockmind_token');
+        localStorage.removeItem('stockmind_user');
+        localStorage.removeItem('stockmind_empresa_id');
         showLogin();
     }
     userDropdown.classList.remove('active');
 }
 
-// Cerrar sidebar al hacer clic fuera en móviles (solo en dashboard.html)
+// Cerrar sidebar al hacer clic fuera en móviles
 if (sidebar) {
     document.addEventListener('click', function (e) {
         if (window.innerWidth < 1400) {
