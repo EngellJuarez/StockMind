@@ -1,7 +1,7 @@
 // scripts/products.js
 
 const API_BASE_URL = 'http://localhost:1337/api/productos';
-const API_CATEGORIAS_URL = 'http://localhost:1337/api/categorias'; // Nueva URL para categorías
+const API_CATEGORIAS_URL = 'http://localhost:1337/api/categorias';
 let currentEditingDocId = null; // Usar documentId para Strapi
 
 // Función para obtener productos (con populate)
@@ -90,7 +90,7 @@ async function deleteProducto(docId) {
 async function updateStats() {
     const productos = await getProductos();
     const categorias = await getCategorias();
-    
+
     document.getElementById('totalProductos').textContent = productos.length;
     document.getElementById('totalCategorias').textContent = categorias.length;
 }
@@ -316,12 +316,149 @@ function initProducts() {
         closeModal();
     });
 
+    // Event listener para guardar categoría (dentro de initProducts, con logs)
+    document.getElementById('categoriaForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        e.stopImmediatePropagation(); // Previene cualquier otro evento
+
+        const nombre = document.getElementById('categoriaNombre').value.trim();
+        if (!nombre) {
+            alert('Ingresa un nombre para la categoría');
+            return;
+        }
+
+        const categoria = { Nombre: nombre };
+        const docId = document.getElementById('categoriaDocumentId').value;
+
+        console.log('Intentando guardar categoría:', categoria, 'DocId:', docId);
+
+        try {
+            let url = API_CATEGORIAS_URL;
+            let method = 'POST';
+            if (docId) {
+                url = `${API_CATEGORIAS_URL}/${docId}`;
+                method = 'PUT';
+            }
+
+            const response = await fetch(url, {
+                method: method,
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data: categoria })
+            });
+
+            console.log('Respuesta del servidor:', response.status);
+
+            if (response.ok) {
+                const result = await response.json();
+                console.log('Categoría guardada:', result);
+                loadCategoriaTable(); // Recarga tabla sin cerrar modal
+                loadProductos(); // Actualiza productos
+                updateStats(); // Actualiza stats
+                clearCategoriaForm(); // Limpia form
+                // NO alert, NO cierra modal
+            } else {
+                const errorText = await response.text();
+                console.error('Error al guardar:', response.status, errorText);
+                alert('Error al guardar: ' + response.status + ' - ' + errorText);
+            }
+        } catch (error) {
+            console.error('Error de red:', error);
+            alert('Error de red: ' + error.message);
+        }
+    });
+
     // Cerrar modal al hacer clic fuera
     window.addEventListener('click', (e) => {
         if (e.target.classList.contains('modal')) {
             closeModal();
         }
     });
+}
+
+// Función para abrir modal de categorías
+function manageCategorias() {
+    loadCategoriaTable();
+    document.getElementById('categoriaModal').classList.add('active');
+}
+
+// Función para cargar tabla de categorías
+async function loadCategoriaTable() {
+    try {
+        const categorias = await getCategorias();
+        const filterValue = document.getElementById('filterCategoriaNombre').value.toLowerCase();
+        const filtered = categorias.filter(cat => cat.Nombre.toLowerCase().includes(filterValue));
+        const tableBody = document.getElementById('categoriaTableBody');
+        tableBody.innerHTML = '';
+
+        filtered.forEach(categoria => {
+            const row = document.createElement('tr');
+            row.innerHTML = `
+                <td>${categoria.id}</td>
+                <td>${categoria.Nombre}</td>
+                <td>
+                    <div class="table-actions-buttons">
+                        <button class="btn btn-warning" onclick="editCategoria('${categoria.documentId}')">Modificar</button>
+                        <button class="btn btn-danger" onclick="deleteCategoria('${categoria.documentId}')">Eliminar</button>
+                    </div>
+                </td>
+            `;
+            tableBody.appendChild(row);
+        });
+    } catch (error) {
+        console.error('Error cargando categorías:', error);
+    }
+}
+
+// Función para filtrar categorías (con botón)
+function filterCategorias() {
+    loadCategoriaTable();
+}
+
+// Función para editar categoría (no cierra modal)
+async function editCategoria(docId) {
+    try {
+        const categorias = await getCategorias();
+        const categoria = categorias.find(c => c.documentId === docId);
+        if (categoria) {
+            document.getElementById('categoriaDocumentId').value = docId;
+            document.getElementById('categoriaNombre').value = categoria.Nombre;
+        }
+    } catch (error) {
+        console.error('Error editando categoría:', error);
+    }
+}
+
+// Función para eliminar categoría (no cierra modal)
+async function deleteCategoria(docId) {
+    if (confirm('¿Estás seguro de eliminar esta categoría?')) {
+        try {
+            const response = await fetch(`${API_CATEGORIAS_URL}/${docId}`, {
+                method: 'DELETE'
+            });
+            if (response.ok) {
+                loadCategoriaTable();
+                loadProductos(); // Actualizar productos
+                updateStats();
+            } else {
+                alert('Error al eliminar: ' + response.status);
+            }
+        } catch (error) {
+            alert('Error: ' + error.message);
+        }
+    }
+}
+
+// Función para limpiar formulario de categoría
+function clearCategoriaForm() {
+    document.getElementById('categoriaForm').reset();
+    document.getElementById('categoriaDocumentId').value = '';
+}
+
+// Función para cerrar modal (remueve active de todos)
+function closeModal() {
+    document.getElementById('productModal').classList.remove('active');
+    document.getElementById('filterModal').classList.remove('active');
+    document.getElementById('categoriaModal').classList.remove('active'); // Agregado
 }
 
 // Exponer la función globalmente

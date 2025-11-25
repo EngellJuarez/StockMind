@@ -7,7 +7,7 @@
         <span class="stat-title">Total Productos</span>
         <i class="fas fa-tags stat-icon"></i>
       </div>
-      <div class="stat-value" id="totalProductos">0</div> <!-- ID agregado -->
+      <div class="stat-value" id="totalProductos">0</div>
       <div class="stat-change positive">Actualizado</div>
     </div>
 
@@ -16,8 +16,11 @@
         <span class="stat-title">Categorías</span>
         <i class="fas fa-folder stat-icon"></i>
       </div>
-      <div class="stat-value" id="totalCategorias">0</div> <!-- ID agregado -->
+      <div class="stat-value" id="totalCategorias">0</div>
       <div class="stat-change positive">Actualizado</div>
+      <div class="stat-change positive" style="text-align: right;">
+        <button class="btn btn-primary" onclick="manageCategorias()">Gestionar Categorías</button>
+      </div>
     </div>
   </div>
 
@@ -118,6 +121,55 @@
             <button type="submit" class="btn btn-primary">Filtrar</button>
           </div>
         </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal para Gestionar Categorías -->
+  <div id="categoriaModal" class="modal">
+    <div class="modal-content modal-horizontal">
+      <div class="modal-header">
+        <h3>Gestionar Categorías</h3>
+        <span class="modal-close" onclick="closeModal()">&times;</span>
+      </div>
+      <div class="modal-body">
+        <div class="categoria-left">
+          <div class="form-group categoria-filter-row">
+            <label for="filterCategoriaNombre">Buscar Categoría</label>
+            <div class="filter-input-group">
+              <input type="text" id="filterCategoriaNombre" placeholder="Escribe para buscar...">
+              <button type="button" class="btn btn-primary" onclick="filterCategorias()">Filtrar</button>
+            </div>
+          </div>
+          <div class="table-container">
+            <table class="table">
+              <thead>
+                <tr>
+                  <th>ID</th>
+                  <th>Nombre</th>
+                  <th>Acción</th>
+                </tr>
+              </thead>
+              <tbody id="categoriaTableBody">
+                <!-- Aquí se cargarán las categorías -->
+              </tbody>
+            </table>
+          </div>
+        </div>
+        <div class="categoria-right">
+          <h4>Agregar/Editar Categoría</h4>
+          <form id="categoriaForm">
+            <input type="hidden" id="categoriaDocumentId" />
+            <div class="form-group">
+              <label for="categoriaNombre">Nombre de la Categoría</label>
+              <input type="text" id="categoriaNombre" name="Nombre" required>
+            </div>
+            <div class="modal-actions">
+              <button type="button" class="btn btn-secondary" onclick="clearCategoriaForm()">Limpiar</button>
+              <button type="submit" class="btn btn-success">Guardar</button>
+            </div>
+          </form>
+        </div>
       </div>
     </div>
   </div>
