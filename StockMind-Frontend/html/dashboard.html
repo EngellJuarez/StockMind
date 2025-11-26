@@ -37,6 +37,99 @@
                             <div class="user-details">
                                 <span class="empresa-name">Empresa</span>
                                 <span class="user-name hidden-mobile">Usuario</span>
+                            </div>
+                            <div class="user-dropdown" id="userDropdown">
+                                <a href="#" class="dropdown-item" onclick="editProfile()">
+                                    <i class="fas fa-user-edit dropdown-icon"></i>
+                                    Editar Perfil
+                                </a>
+                                <a href="#" class="dropdown-item" onclick="viewNotifications()">
+                                    <i class="fas fa-bell dropdown-icon"></i>
+                                    Notificaciones
+                                </a>
+                                <a href="#" class="dropdown-item" onclick="logout()">
+                                    <i class="fas fa-sign-out-alt dropdown-icon"></i>
+                                    Cerrar Sesión
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-layout">
+            <!-- Sidebar -->
+            <aside class="sidebar" id="sidebar">
+                <div class="sidebar-content">
+                    <nav>
+                        <ul class="nav-menu">
+                            <li class="nav-item">
+                                <a href="#" class="nav-link active" data-view="panel">
+                                    <i class="fas fa-chart-line nav-icon"></i>
+                                    Panel Principal
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link" data-view="inventory">
+                                    <i class="fas fa-boxes nav-icon"></i>
+                                    Inventario
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link" data-view="products">
+                                    <i class="fas fa-tags nav-icon"></i>
+                                    Productos
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link" data-view="suppliers">
+                                    <i class="fas fa-industry nav-icon"></i>
+                                    Proveedores
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link" data-view="orders">
+                                    <i class="fas fa-clipboard-list nav-icon"></i>
+                                    Órdenes de Compra
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link" data-view="movements">
+                                    <i class="fas fa-sync-alt nav-icon"></i>
+                                    Movimientos
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link" data-view="warehouses">
+                                    <i class="fas fa-store nav-icon"></i>
+                                    Almacenes
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link" data-view="analytics">
+                                    <i class="fas fa-chart-line nav-icon"></i>
+                                    Análisis
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link" data-view="ai">
+                                    <i class="fas fa-robot nav-icon"></i>
+                                    IA Recomendaciones
+                                </a>
+                            </li>
+                            <li class="nav-item">
+                                <a href="#" class="nav-link" data-view="reports">
+                                    <i class="fas fa-chart-bar nav-icon"></i>
+                                    Reportes
+                                </a>
+                            </li>
+                        </ul>
+                    </nav>
+                </div>
+            </aside>
+
+            <!-- Contenido principal -->
             <main class="content" id="content">
                 <!-- El contenido de las vistas se cargará aquí dinámicamente -->
             </main>
