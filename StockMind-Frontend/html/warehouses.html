@@ -1,51 +1,96 @@
-<div id="warehousesView" class="view">
+<div class="view-header">
     <h2>Gestión de Almacenes</h2>
-    
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-header">
-                <span class="stat-title">Almacenes Activos</span>
-                <i class="fas fa-store stat-icon"></i>
-            </div>
-            <div class="stat-value">0</div>
-            <div class="stat-change positive">Sin datos</div>
+    <button class="btn btn-primary" onclick="addWarehouse()">
+        <i class="fas fa-plus"></i> Agregar Almacén
+    </button>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #e3f2fd; color: #1976d2;">
+            <i class="fas fa-store"></i>
         </div>
-        
-        <div class="stat-card">
-            <div class="stat-header">
-                <span class="stat-title">Capacidad Utilizada</span>
-                <i class="fas fa-chart-pie stat-icon"></i>
-            </div>
-            <div class="stat-value">0%</div>
-            <div class="stat-change positive">Sin datos</div>
+        <div class="stat-info">
+            <h3 id="totalWarehouses">0</h3>
+            <p>Almacenes Activos</p>
         </div>
     </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #e8f5e9; color: #2e7d32;">
+            <i class="fas fa-box"></i>
+        </div>
+        <div class="stat-info">
+            <h3 id="totalCapacity">0</h3>
+            <p>Capacidad Total</p>
+        </div>
+    </div>
+</div>
 
-    <div class="table-container">
-        <div class="table-header">
-            <h3 class="table-title">Lista de Almacenes</h3>
-            <div class="table-actions">
-                <button class="btn btn-primary">Ver Mapa</button>
-                <button class="btn btn-primary">Agregar</button>
+<!-- Warehouses List -->
+<div class="card">
+    <div class="card-header">
+        <h3>Lista de Almacenes</h3>
+        <div class="card-actions">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Buscar almacén..." id="searchWarehouse" onkeyup="filterWarehouses()">
             </div>
         </div>
-        <div class="table-wrapper">
-            <table class="table">
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table" id="warehousesTable">
                 <thead>
                     <tr>
                         <th>Nombre</th>
                         <th>Ubicación</th>
                         <th>Capacidad</th>
-                        <th>Ocupación</th>
-                        <th>Productos</th>
                         <th>Estado</th>
-                        <th>Acción</th>
+                        <th>Acciones</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <!-- Sin datos -->
+                <tbody id="warehousesTableBody">
+                    <!-- Warehouses will be loaded here -->
                 </tbody>
             </table>
         </div>
+    </div>
+</div>
+
+<!-- Warehouse Modal -->
+<div id="warehouseModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3 id="modalTitle">Agregar Almacén</h3>
+            <button class="close-btn" onclick="closeWarehouseModal()">&times;</button>
+        </div>
+        <form id="warehouseForm">
+            <input type="hidden" id="warehouseId">
+            <div class="form-group">
+                <label for="warehouseName">Nombre del Almacén</label>
+                <input type="text" id="warehouseName" name="Nombre" required>
+            </div>
+            <div class="form-group">
+                <label for="warehouseLocation">Ubicación</label>
+                <input type="text" id="warehouseLocation" name="Ubicacion" required>
+            </div>
+            <div class="form-group">
+                <label for="warehouseCapacity">Capacidad</label>
+                <input type="text" id="warehouseCapacity" name="Capacidad" required>
+            </div>
+            <div class="form-group">
+                <label for="warehouseStatus">Estado</label>
+                <select id="warehouseStatus" name="Estado" required>
+                    <option value="Activo">Activo</option>
+                    <option value="Mantenimiento">Mantenimiento</option>
+                    <option value="Inactivo">Inactivo</option>
+                </select>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeWarehouseModal()">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Guardar</button>
+            </div>
+        </form>
     </div>
 </div>

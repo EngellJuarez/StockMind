@@ -112,6 +112,12 @@ function loadViewScript(viewName) {
     if (viewName === 'suppliers') {
         if (window.initSuppliers) window.initSuppliers(empresaNombre);
     }
+    if (viewName === 'warehouses') {
+        if (window.initWarehouses) window.initWarehouses();
+    }
+    if (viewName === 'movements') {
+        if (window.initMovements) window.initMovements();
+    }
     // Agrega más vistas aquí si las tienes (ej. orders, inventory)
 }
 
