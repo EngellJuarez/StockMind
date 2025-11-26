@@ -1,52 +1,110 @@
-<div id="movementsView" class="view">
+<div class="view-header">
     <h2>Movimientos de Inventario</h2>
-    
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-header">
-                <span class="stat-title">Movimientos Hoy</span>
-                <i class="fas fa-sync-alt stat-icon"></i>
-            </div>
-            <div class="stat-value">0</div>
-            <div class="stat-change positive">Sin datos</div>
+    <button class="btn btn-primary" onclick="openMovementModal()">
+        <i class="fas fa-exchange-alt"></i> Registrar Movimiento
+    </button>
+</div>
+
+<!-- Stats Cards -->
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #e8f5e9; color: #2e7d32;">
+            <i class="fas fa-arrow-down"></i>
         </div>
-        
-        <div class="stat-card">
-            <div class="stat-header">
-                <span class="stat-title">Entradas vs Salidas</span>
-                <i class="fas fa-balance-scale stat-icon"></i>
-            </div>
-            <div class="stat-value">0%</div>
-            <div class="stat-change positive">Sin datos</div>
+        <div class="stat-info">
+            <h3 id="totalIn">0</h3>
+            <p>Entradas (Mes)</p>
         </div>
     </div>
+    <div class="stat-card">
+        <div class="stat-icon" style="background-color: #ffebee; color: #c62828;">
+            <i class="fas fa-arrow-up"></i>
+        </div>
+        <div class="stat-info">
+            <h3 id="totalOut">0</h3>
+            <p>Salidas (Mes)</p>
+        </div>
+    </div>
+</div>
 
-    <div class="table-container">
-        <div class="table-header">
-            <h3 class="table-title">Historial de Movimientos</h3>
-            <div class="table-actions">
-                <button class="btn btn-primary">Filtrar</button>
-                <button class="btn btn-primary">Agregar</button>
+<!-- Movements List -->
+<div class="card">
+    <div class="card-header">
+        <h3>Historial de Movimientos</h3>
+        <div class="card-actions">
+            <div class="search-box">
+                <i class="fas fa-search"></i>
+                <input type="text" placeholder="Buscar movimiento..." id="searchMovement" onkeyup="filterMovements()">
             </div>
         </div>
-        <div class="table-wrapper">
-            <table class="table">
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table" id="movementsTable">
                 <thead>
                     <tr>
-                        <th>Fecha/Hora</th>
-                        <th>Producto</th>
+                        <th>Fecha</th>
                         <th>Tipo</th>
-                        <th>Cantidad</th>
+                        <th>Producto</th>
                         <th>Almacén</th>
-                        <th>Usuario</th>
+                        <th>Cantidad</th>
                         <th>Observaciones</th>
-                        <th>Acción</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <!-- Sin datos -->
+                <tbody id="movementsTableBody">
+                    <!-- Movements will be loaded here -->
                 </tbody>
             </table>
         </div>
+    </div>
+</div>
+
+<!-- Movement Modal -->
+<div id="movementModal" class="modal">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Registrar Movimiento</h3>
+            <button class="close-btn" onclick="closeMovementModal()">&times;</button>
+        </div>
+        <form id="movementForm">
+            <div class="form-group">
+                <label for="movementType">Tipo de Movimiento</label>
+                <select id="movementType" name="Tipo" required>
+                    <option value="Entrada">Entrada</option>
+                    <option value="Salida">Salida</option>
+                    <option value="Ajuste">Ajuste</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="movementProduct">Producto</label>
+                <select id="movementProduct" name="producto" required>
+                    <option value="">Seleccione un producto</option>
+                    <!-- Products will be loaded here -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="movementWarehouse">Almacén</label>
+                <select id="movementWarehouse" name="almacen" required>
+                    <option value="">Seleccione un almacén</option>
+                    <!-- Warehouses will be loaded here -->
+                </select>
+            </div>
+            <div class="form-group">
+                <label for="movementQuantity">Cantidad</label>
+                <input type="number" id="movementQuantity" name="Cantidad" min="1" required>
+            </div>
+            <div class="form-group">
+                <label for="movementDate">Fecha</label>
+                <input type="datetime-local" id="movementDate" name="Fecha" required>
+            </div>
+            <div class="form-group">
+                <label for="movementNotes">Observaciones</label>
+                <textarea id="movementNotes" name="Observaciones" rows="3"></textarea>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" onclick="closeMovementModal()">Cancelar</button>
+                <button type="submit" class="btn btn-primary">Registrar</button>
+            </div>
+        </form>
     </div>
 </div>
