@@ -134,7 +134,7 @@ if (navLinks.length > 0) {
 
     function initFromHash() {
         const hash = window.location.hash.substring(1);
-        if (hash && ['panel', 'inventory', 'products', 'suppliers', 'orders', 'movements', 'warehouses', 'analytics', 'ai', 'reports', 'settings', 'users'].includes(hash)) {
+        if (hash && ['panel', 'inventory', 'products', 'suppliers', 'orders', 'movements', 'warehouses', 'analytics', 'ai', 'reports', 'users'].includes(hash)) {
             loadView(hash);
         } else {
             loadView('panel');
@@ -173,10 +173,7 @@ function editProfile() {
     userDropdown.classList.remove('active');
 }
 
-function viewSettings() {
-    alert('Función de configuración');
-    userDropdown.classList.remove('active');
-}
+
 
 function viewNotifications() {
     alert('Función de notificaciones');
