@@ -33,11 +33,122 @@
         });
     }
 
+    // Register Functionality
+    if (registerForm) {
+        registerForm.addEventListener('submit', async function (e) {
+            e.preventDefault();
+
+            const username = document.getElementById('fullName').value;
+            const email = document.getElementById('registerEmail').value;
+            const password = document.getElementById('registerPassword').value;
+            const confirmPassword = document.getElementById('confirmPassword').value;
+            const companyName = document.getElementById('companyName').value;
+            const phone = document.getElementById('phone').value;
+            const companyAddress = document.getElementById('companyAddress').value;
+
+            if (password !== confirmPassword) {
+                alert('Las contraseñas no coinciden');
+                return;
+            }
+
+            try {
+                // 1. Verificar si el usuario ya existe
+                const userCheckResponse = await fetch(`${API_URL}/users?filters[email][$eq]=${encodeURIComponent(email)}`);
+                const userCheckData = await userCheckResponse.json();
+                if (userCheckData && userCheckData.length > 0) {
+                    alert('El usuario ya existe. Elige un email diferente.');
+                    return;
+                }
+
+                // 2. Verificar si la empresa ya existe
+                const empresaCheckResponse = await fetch(`${API_URL}/empresas?filters[Nombre][$eq]=${encodeURIComponent(companyName)}`);
+                const empresaCheckData = await empresaCheckResponse.json();
+                if (empresaCheckData.data && empresaCheckData.data.length > 0) {
+                    alert('La empresa ya existe. Elige un nombre diferente.');
+                    return;
+                }
+
+                // 3. Registrar Usuario
+                const registerResponse = await fetch(`${API_URL}/auth/local/register`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        username: username,
+                        email: email,
+                        password: password
+                    })
+                });
+
+                const registerData = await registerResponse.json();
+                if (!registerResponse.ok) {
+                    alert('Error registrando usuario: ' + registerData.error?.message);
+                    return;  // No se crea empresa
+                }
+
+                // 4. Crear Empresa
+                const empresaResponse = await fetch(`${API_URL}/empresas`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        data: {
+                            Nombre: companyName,
+                            Telefono: phone,
+                            Direccion: companyAddress,
+                            FechaCreacion: new Date().toISOString()
+                        }
+                    })
+                });
+                const empresaData = await empresaResponse.json();
+                if (!empresaResponse.ok) {
+                    alert('Error creando empresa: ' + empresaData.error?.message);
+                    // Si falla empresa, podrías borrar usuario, pero por simplicidad, informa
+                    return;
+                }
+
+                // 5. Asignar empresa al usuario
+                let empresaAsignada = false;
+                try {
+                    const updateResponse = await fetch(`${API_URL}/users/${registerData.user.id}`, {
+                        method: 'PUT',
+                        headers: {
+                            'Content-Type': 'application/json',
+                            'Authorization': `Bearer ${registerData.jwt}`
+                        },
+                        body: JSON.stringify({
+                            empresa: empresaData.data.id
+                        })
+                    });
+                    if (updateResponse.ok) {
+                        empresaAsignada = true;
+                    }
+                } catch (updateError) {
+                    console.warn('No se pudo asignar empresa automáticamente:', updateError);
+                }
+
+                // 6. Guardar y redirigir solo si todo OK
+                localStorage.setItem('stockmind_token', registerData.jwt);
+                localStorage.setItem('stockmind_user', JSON.stringify(registerData.user));
+                localStorage.setItem('stockmind_empresa_nombre', empresaData.data.Nombre);
+
+                alert('Registro exitoso.');
+                window.location.href = 'html/dashboard.html';
+            } catch (error) {
+                console.error('Register error:', error);
+                alert('Error de conexión con el servidor');
+            }
+        });
+    }
+
+
     // Login Functionality
     if (loginForm) {
         loginForm.addEventListener('submit', async function (e) {
             e.preventDefault();
-            
+
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             const rememberMe = document.getElementById('rememberMe').checked;
@@ -55,15 +166,31 @@
                 });
 
                 const data = await response.json();
+                console.log('Login data:', data);  // Log para ver respuesta
 
                 if (response.ok) {
-                    // Save token and user info
+                    // Obtener usuario con empresa poblada
+                    const userResponse = await fetch(`${API_URL}/users/${data.user.id}?populate=empresa`, {
+                        headers: {
+                            'Authorization': `Bearer ${data.jwt}`
+                        }
+                    });
+                    const userData = await userResponse.json();
+                    console.log('User data con empresa:', userData);  // Log para ver si tiene empresa
+                    console.log('Empresa ID:', userData.empresa?.id);  // Log específico
+
+                    let empresaId = userData.empresa?.id;
+                    if (!empresaId) {
+                        console.log('No tiene empresa, bloqueando');  // Log
+                        alert('Tu usuario no tiene empresa asignada. Contacta al administrador.');
+                        return;
+                    }
+
+                    console.log('Tiene empresa, guardando');  // Log
                     localStorage.setItem('stockmind_token', data.jwt);
-                    localStorage.setItem('stockmind_user', JSON.stringify(data.user));
-                    
-                    // If user has a company, save it too (assuming it's populated or we fetch it later)
-                    // For now, we'll redirect and let the dashboard handle company fetching if needed
-                    
+                    localStorage.setItem('stockmind_user', JSON.stringify(userData));
+                    localStorage.setItem('stockmind_empresa_nombre', userData.empresa.Nombre);
+
                     if (rememberMe) {
                         localStorage.setItem('stockmind_remember_email', email);
                     } else {
@@ -76,61 +203,6 @@
                 }
             } catch (error) {
                 console.error('Login error:', error);
-                alert('Error de conexión con el servidor');
-            }
-        });
-    }
-
-    // Register Functionality
-    if (registerForm) {
-        registerForm.addEventListener('submit', async function (e) {
-            e.preventDefault();
-
-            const username = document.getElementById('fullName').value;
-            const email = document.getElementById('registerEmail').value;
-            const password = document.getElementById('registerPassword').value;
-            const confirmPassword = document.getElementById('confirmPassword').value;
-            const companyName = document.getElementById('companyName').value;
-            const phone = document.getElementById('phone').value;
-
-            if (password !== confirmPassword) {
-                alert('Las contraseñas no coinciden');
-                return;
-            }
-
-            try {
-                // 1. Register the user
-                const registerResponse = await fetch(`${API_URL}/auth/local/register`, {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json'
-                    },
-                    body: JSON.stringify({
-                        username: username,
-                        email: email,
-                        password: password,
-                        // Custom fields if your User Content Type has them, otherwise we might need a separate call
-                        // Assuming standard Strapi register for now. 
-                        // If you need to create a Company and link it, that's a more complex flow.
-                        // For this MVP, we'll just register the user.
-                    })
-                });
-
-                const data = await registerResponse.json();
-
-                if (registerResponse.ok) {
-                    // 2. (Optional) Create Company if needed, or just log them in
-                    // For now, let's just log them in
-                    localStorage.setItem('stockmind_token', data.jwt);
-                    localStorage.setItem('stockmind_user', JSON.stringify(data.user));
-
-                    alert('Registro exitoso. Bienvenido a StockMind.');
-                    window.location.href = 'html/dashboard.html';
-                } else {
-                    alert('Error en el registro: ' + (data.error?.message || 'Error desconocido'));
-                }
-            } catch (error) {
-                console.error('Register error:', error);
                 alert('Error de conexión con el servidor');
             }
         });

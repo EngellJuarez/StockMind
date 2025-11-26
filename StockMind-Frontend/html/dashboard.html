@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StockMind - Dashboard</title>
     <link rel="stylesheet" href="../style/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700&family=Open+Sans:wght@400;500;600&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
     <!-- Dashboard Principal -->
     <div id="dashboard" class="dashboard active">
@@ -30,7 +34,10 @@
                         <!-- Dropdown al perfil de usuario -->
                         <div class="user-info" id="userInfo">
                             <div class="user-avatar">A</div>
-                            <span class="hidden-mobile">Admin Usuario</span>
+                            <div class="user-details">
+                                <span class="empresa-name">Empresa</span>
+                                <span class="user-name hidden-mobile">Usuario</span>
+                            </div>
                             <div class="user-dropdown" id="userDropdown">
                                 <a href="#" class="dropdown-item" onclick="editProfile()">
                                     <i class="fas fa-user-edit dropdown-icon"></i>
@@ -143,4 +150,5 @@
     <script src="../scripts/dashboard.js"></script>
     <script src="../scripts/products.js"></script>
 </body>
+
 </html>

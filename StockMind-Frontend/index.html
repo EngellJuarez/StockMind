@@ -1,13 +1,17 @@
 <!DOCTYPE html>
 <html lang="es">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>StockMind - Control de Inventario Inteligente</title>
     <link rel="stylesheet" href="style/main.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.0/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link
+        href="https://fonts.googleapis.com/css2?family=Work+Sans:wght@400;600;700&family=Open+Sans:wght@400;500;600&display=swap"
+        rel="stylesheet">
 </head>
+
 <body>
     <!-- Página de Login/Registro -->
     <div id="loginPage" class="login-container">
@@ -20,7 +24,7 @@
                     <p>Control de Inventario Inteligente</p>
                 </div>
             </div>
-            
+
             <!-- Pestañas para Login/Registro -->
             <div class="auth-tabs">
                 <button class="tab-btn active" data-tab="login">Iniciar Sesión</button>
@@ -57,7 +61,7 @@
                     <input type="text" id="companyName" name="companyName" required>
                 </div>
                 <div class="form-group">
-                    <label for="fullName">Nombre Completo</label>
+                    <label for="fullName">Nombre del Usuario</label>
                     <input type="text" id="fullName" name="fullName" required>
                 </div>
                 <div class="form-group">
@@ -67,6 +71,10 @@
                 <div class="form-group">
                     <label for="phone">Teléfono</label>
                     <input type="tel" id="phone" name="phone" required>
+                </div>
+                <div class="form-group">
+                    <label for="companyAddress">Dirección de la Empresa</label>
+                    <input type="text" id="companyAddress" required>
                 </div>
                 <div class="form-group">
                     <label for="registerPassword">Contraseña</label>
@@ -93,4 +101,5 @@
 
     <script src="scripts/login.js"></script>
 </body>
+
 </html>

@@ -13,25 +13,56 @@ const userInfo = document.getElementById('userInfo');
 const userDropdown = document.getElementById('userDropdown');
 const content = document.getElementById('content');
 
-// Display User Info
-const storedUser = localStorage.getItem('stockmind_user');
-if (storedUser && userInfo) {
-    try {
-        const user = JSON.parse(storedUser);
-        const userNameElement = userInfo.querySelector('.hidden-mobile');
-        if (userNameElement) {
-            userNameElement.textContent = user.username || 'Usuario';
+// Check de login y empresa al cargar dashboard
+const token = localStorage.getItem('stockmind_token');
+const empresaNombre = localStorage.getItem('stockmind_empresa_nombre');
+if (!token || !empresaNombre) {
+    showLogin();  // Redirige si no hay login o empresa
+}
+
+// Display Empresa Info
+if (empresaNombre && userInfo) {
+    console.log('DEBUG: Buscando empresa por nombre:', empresaNombre);
+    fetch(`http://localhost:1337/api/empresas?filters[Nombre][$eq]=${encodeURIComponent(empresaNombre)}`)
+        .then(response => {
+            console.log('DEBUG: Respuesta status:', response.status);
+            return response.json();
+        })
+        .then(data => {
+            console.log('DEBUG: Datos empresa:', data);
+            const empresa = data.data && data.data.length > 0 ? data.data[0] : null;
+            const empresaNombreDisplay = empresa ? empresa.Nombre : 'Empresa';
+            console.log('DEBUG: Nombre display:', empresaNombreDisplay);
+            const empresaElement = userInfo.querySelector('.empresa-name');
+            if (empresaElement) {
+                empresaElement.textContent = empresaNombreDisplay;
+            }
+            const avatarElement = userInfo.querySelector('.user-avatar');
+            if (avatarElement && empresaNombreDisplay) {
+                avatarElement.textContent = empresaNombreDisplay.charAt(0).toUpperCase();
+            }
+        })
+        .catch(error => {
+            console.error('DEBUG: Error en fetch:', error);
+            const empresaElement = userInfo.querySelector('.empresa-name');
+            if (empresaElement) empresaElement.textContent = 'Empresa';
+        });
+
+    // Mostrar usuario (igual)
+    const storedUser = localStorage.getItem('stockmind_user');
+    if (storedUser) {
+        try {
+            const user = JSON.parse(storedUser);
+            const userElement = userInfo.querySelector('.user-name');
+            if (userElement) {
+                userElement.textContent = user.username || 'Usuario';
+            }
+        } catch (e) {
+            console.error('Error parsing user info:', e);
         }
-        const avatarElement = userInfo.querySelector('.user-avatar');
-        if (avatarElement && user.username) {
-            avatarElement.textContent = user.username.charAt(0).toUpperCase();
-        }
-    } catch (e) {
-        console.error('Error parsing user info:', e);
     }
-} else if (!storedUser && window.location.pathname.includes('dashboard.html')) {
-    // Optional: Redirect if not logged in
-    // window.location.href = '../index.html';
+} else {
+    console.log('DEBUG: No hay empresaNombre o userInfo');
 }
 
 // Función para cargar vistas dinámicamente
@@ -65,15 +96,23 @@ function loadView(viewName) {
 
 // Función para cargar script específico de la vista
 function loadViewScript(viewName) {
+    const empresaNombre = localStorage.getItem('stockmind_empresa_nombre');  // Cambia a nombre
+    if (!empresaNombre) {
+        alert('No tienes empresa asignada');
+        showLogin();
+        return;
+    }
+
     if (viewName === 'products') {
-        if (window.initProducts) window.initProducts();
+        if (window.initProducts) window.initProducts(empresaNombre);  // Pasa empresaId
     }
     if (viewName === 'users') {
-        if (window.initUsers) window.initUsers();
+        if (window.initUsers) window.initUsers(empresaNombre);
     }
     if (viewName === 'suppliers') {
-        if (window.initSuppliers) window.initSuppliers();
+        if (window.initSuppliers) window.initSuppliers(empresaNombre);
     }
+    // Agrega más vistas aquí si las tienes (ej. orders, inventory)
 }
 
 // Navigation
