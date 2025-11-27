@@ -104,7 +104,7 @@ function loadViewScript(viewName) {
     }
 
     if (viewName === 'products') {
-        if (window.initProducts) window.initProducts(empresaNombre);  // Pasa empresaId
+        if (window.initProducts) window.initProducts(empresaNombre);
     }
     if (viewName === 'users') {
         if (window.initUsers) window.initUsers(empresaNombre);
@@ -126,6 +126,9 @@ function loadViewScript(viewName) {
     }
     if (viewName === 'ai') {
         if (window.initAIRecommendations) window.initAIRecommendations();
+    }
+    if (viewName === 'inventory') {
+        if (window.initInventory) window.initInventory(empresaNombre);
     }
     // Agrega más vistas aquí si las tienes (ej. orders, inventory)
 }
