@@ -1,41 +1,43 @@
 <div class="view-header">
-    <h2>Movimientos de Inventario</h2>
-    <button class="btn btn-primary" onclick="openMovementModal()">
-        <i class="fas fa-exchange-alt"></i> Registrar Movimiento
-    </button>
+    <h2>Movimientos</h2>
 </div>
 
-<!-- Stats Cards -->
-<div class="stats-grid">
+<!-- Top Metrics -->
+<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #e8f5e9; color: #2e7d32;">
-            <i class="fas fa-arrow-down"></i>
-        </div>
         <div class="stat-info">
-            <h3 id="totalIn">0</h3>
-            <p>Entradas (Mes)</p>
+            <p style="font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 8px;">MOVIMIENTOS HOY</p>
+            <h3 style="font-size: 32px; margin: 0;" id="movementsToday">47</h3>
+            <p style="font-size: 13px; color: #00c853; margin-top: 4px;">Alta actividad</p>
+        </div>
+        <div class="stat-icon" style="background-color: #e3f2fd; color: #1976d2;">
+            <i class="fas fa-exchange-alt"></i>
         </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #ffebee; color: #c62828;">
-            <i class="fas fa-arrow-up"></i>
-        </div>
         <div class="stat-info">
-            <h3 id="totalOut">0</h3>
-            <p>Salidas (Mes)</p>
+            <p style="font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 8px;">ENTRADAS VS SALIDAS
+            </p>
+            <h3 style="font-size: 32px; margin: 0;" id="balancePercentage">+15%</h3>
+            <p style="font-size: 13px; color: #00c853; margin-top: 4px;">Balance positivo</p>
+        </div>
+        <div class="stat-icon" style="background-color: #fff3e0; color: #f57c00;">
+            <i class="fas fa-balance-scale"></i>
         </div>
     </div>
 </div>
 
-<!-- Movements List -->
-<div class="card">
-    <div class="card-header">
+<!-- Movements History Table -->
+<div class="card" style="margin-top: 24px;">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
         <h3>Historial de Movimientos</h3>
-        <div class="card-actions">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Buscar movimiento..." id="searchMovement" onkeyup="filterMovements()">
-            </div>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-secondary" onclick="filterMovements()">
+                <i class="fas fa-filter"></i> Filtrar
+            </button>
+            <button class="btn btn-primary" onclick="openMovementModal()">
+                <i class="fas fa-plus"></i> Agregar
+            </button>
         </div>
     </div>
     <div class="card-body">
@@ -43,12 +45,14 @@
             <table class="table" id="movementsTable">
                 <thead>
                     <tr>
-                        <th>Fecha</th>
-                        <th>Tipo</th>
-                        <th>Producto</th>
-                        <th>Almacén</th>
-                        <th>Cantidad</th>
-                        <th>Observaciones</th>
+                        <th>FECHA/HORA</th>
+                        <th>PRODUCTO</th>
+                        <th>TIPO</th>
+                        <th>CANTIDAD</th>
+                        <th>ALMACÉN</th>
+                        <th>USUARIO</th>
+                        <th>OBSERVACIONES</th>
+                        <th>ACCIÓN</th>
                     </tr>
                 </thead>
                 <tbody id="movementsTableBody">

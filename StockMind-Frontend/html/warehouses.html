@@ -1,41 +1,44 @@
 <div class="view-header">
     <h2>Gestión de Almacenes</h2>
-    <button class="btn btn-primary" onclick="addWarehouse()">
-        <i class="fas fa-plus"></i> Agregar Almacén
-    </button>
 </div>
 
-<!-- Stats Cards -->
-<div class="stats-grid">
+<!-- Top Metrics -->
+<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
     <div class="stat-card">
+        <div class="stat-info">
+            <p style="font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 8px;">ALMACENES ACTIVOS
+            </p>
+            <h3 style="font-size: 32px; margin: 0;" id="activeWarehouses">3</h3>
+            <p style="font-size: 13px; color: #00c853; margin-top: 4px;">Operativos</p>
+        </div>
         <div class="stat-icon" style="background-color: #e3f2fd; color: #1976d2;">
             <i class="fas fa-store"></i>
         </div>
-        <div class="stat-info">
-            <h3 id="totalWarehouses">0</h3>
-            <p>Almacenes Activos</p>
-        </div>
     </div>
     <div class="stat-card">
-        <div class="stat-icon" style="background-color: #e8f5e9; color: #2e7d32;">
-            <i class="fas fa-box"></i>
-        </div>
         <div class="stat-info">
-            <h3 id="totalCapacity">0</h3>
-            <p>Capacidad Total</p>
+            <p style="font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 8px;">CAPACIDAD UTILIZADA
+            </p>
+            <h3 style="font-size: 32px; margin: 0;" id="capacityUsed">78%</h3>
+            <p style="font-size: 13px; color: #ff9800; margin-top: 4px;">Óptimo</p>
+        </div>
+        <div class="stat-icon" style="background-color: #fff3e0; color: #f57c00;">
+            <i class="fas fa-chart-pie"></i>
         </div>
     </div>
 </div>
 
 <!-- Warehouses List -->
-<div class="card">
-    <div class="card-header">
+<div class="card" style="margin-top: 24px;">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
         <h3>Lista de Almacenes</h3>
-        <div class="card-actions">
-            <div class="search-box">
-                <i class="fas fa-search"></i>
-                <input type="text" placeholder="Buscar almacén..." id="searchWarehouse" onkeyup="filterWarehouses()">
-            </div>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-secondary" onclick="viewWarehouseMap()">
+                <i class="fas fa-map-marked-alt"></i> Ver Mapa
+            </button>
+            <button class="btn btn-primary" onclick="addWarehouse()">
+                <i class="fas fa-plus"></i> Agregar
+            </button>
         </div>
     </div>
     <div class="card-body">
@@ -43,11 +46,13 @@
             <table class="table" id="warehousesTable">
                 <thead>
                     <tr>
-                        <th>Nombre</th>
-                        <th>Ubicación</th>
-                        <th>Capacidad</th>
-                        <th>Estado</th>
-                        <th>Acciones</th>
+                        <th>NOMBRE</th>
+                        <th>UBICACIÓN</th>
+                        <th>CAPACIDAD</th>
+                        <th>OCUPACIÓN</th>
+                        <th>PRODUCTOS</th>
+                        <th>ESTADO</th>
+                        <th>ACCIÓN</th>
                     </tr>
                 </thead>
                 <tbody id="warehousesTableBody">
@@ -76,8 +81,8 @@
                 <input type="text" id="warehouseLocation" name="Ubicacion" required>
             </div>
             <div class="form-group">
-                <label for="warehouseCapacity">Capacidad</label>
-                <input type="text" id="warehouseCapacity" name="Capacidad" required>
+                <label for="warehouseCapacity">Capacidad (m²)</label>
+                <input type="text" id="warehouseCapacity" name="Capacidad" required placeholder="ej: 1500">
             </div>
             <div class="form-group">
                 <label for="warehouseStatus">Estado</label>

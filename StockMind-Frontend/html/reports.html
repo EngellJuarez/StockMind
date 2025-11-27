@@ -1,50 +1,149 @@
-<div id="reportsView" class="view">
+<div class="view-header">
     <h2>Reportes</h2>
-    
-    <div class="stats-grid">
-        <div class="stat-card">
-            <div class="stat-header">
-                <span class="stat-title">Reportes Generados</span>
-                <i class="fas fa-chart-bar stat-icon"></i>
-            </div>
-            <div class="stat-value">0</div>
-            <div class="stat-change positive">Sin datos</div>
+</div>
+
+<!-- Top Metrics -->
+<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
+    <div class="stat-card">
+        <div class="stat-info">
+            <p style="font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 8px;">REPORTES GENERADOS
+            </p>
+            <h3 style="font-size: 32px; margin: 0;" id="totalReportsGenerated">127</h3>
+            <p style="font-size: 13px; color: #00c853; margin-top: 4px;">Este mes</p>
         </div>
-        
-        <div class="stat-card">
-            <div class="stat-header">
-                <span class="stat-title">Reportes Automáticos</span>
-                <i class="fas fa-robot stat-icon"></i>
-            </div>
-            <div class="stat-value">0</div>
-            <div class="stat-change positive">Sin datos</div>
+        <div class="stat-icon" style="background-color: #e3f2fd; color: #1976d2;">
+            <i class="fas fa-file-alt"></i>
         </div>
     </div>
-
-    <div class="table-container">
-        <div class="table-header">
-            <h3 class="table-title">Tipos de Reportes Disponibles</h3>
-            <div class="table-actions">
-                <button class="btn btn-primary">Programar</button>
-                <button class="btn btn-primary">Generar Reporte</button>
-            </div>
+    <div class="stat-card">
+        <div class="stat-info">
+            <p style="font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 8px;">REPORTES AUTOMÁTICOS
+            </p>
+            <h3 style="font-size: 32px; margin: 0;" id="totalAutomaticReports">15</h3>
+            <p style="font-size: 13px; color: #00c853; margin-top: 4px;">Configurados</p>
         </div>
-        <div class="table-wrapper">
+        <div class="stat-icon" style="background-color: #e8f5e9; color: #2e7d32;">
+            <i class="fas fa-robot"></i>
+        </div>
+    </div>
+</div>
+
+<!-- Available Reports Table -->
+<div class="card" style="margin-top: 24px;">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h3>Tipos de Reportes Disponibles</h3>
+        <div style="display: flex; gap: 10px;">
+            <button class="btn btn-secondary" onclick="scheduleReport()">
+                <i class="fas fa-clock"></i> Programar
+            </button>
+            <button class="btn btn-primary" onclick="generateReport()">
+                <i class="fas fa-file-download"></i> Generar Reporte
+            </button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
             <table class="table">
                 <thead>
                     <tr>
-                        <th>Tipo de Reporte</th>
-                        <th>Descripción</th>
-                        <th>Frecuencia</th>
-                        <th>Último Generado</th>
-                        <th>Estado</th>
-                        <th>Acción</th>
+                        <th>TIPO DE REPORTE</th>
+                        <th>DESCRIPCIÓN</th>
+                        <th>FRECUENCIA</th>
+                        <th>ÚLTIMO GENERADO</th>
+                        <th>ESTADO</th>
+                        <th>ACCIÓN</th>
                     </tr>
                 </thead>
                 <tbody>
-                    <!-- Sin datos -->
+                    <tr>
+                        <td><strong>Inventario General</strong></td>
+                        <td>Estado completo del inventario</td>
+                        <td>Diario</td>
+                        <td id="lastInventoryReport">-</td>
+                        <td><span class="status-badge status-activo">Activo</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="generateSpecificReport('inventory')">
+                                Generar
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Stock Bajo</strong></td>
+                        <td>Productos con stock crítico</td>
+                        <td>Semanal</td>
+                        <td id="lastLowStockReport">-</td>
+                        <td><span class="status-badge status-activo">Activo</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="generateSpecificReport('lowstock')">
+                                Generar
+                            </button>
+                        </td>
+                    </tr>
+                    <tr>
+                        <td><strong>Análisis de Ventas</strong></td>
+                        <td>Rendimiento de productos</td>
+                        <td>Mensual</td>
+                        <td id="lastSalesReport">-</td>
+                        <td><span class="status-badge"
+                                style="background-color: #fff3e0; color: #f57c00;">Programado</span></td>
+                        <td>
+                            <button class="btn btn-sm btn-secondary" onclick="configureReport('sales')">
+                                Configurar
+                            </button>
+                        </td>
+                    </tr>
                 </tbody>
             </table>
         </div>
     </div>
+</div>
+
+<!-- Recent Reports Summary -->
+<div class="reports-grid"
+    style="display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 20px; margin-top: 20px;">
+
+    <!-- Products by Category -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Productos por Categoría</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Categoría</th>
+                            <th>Cantidad</th>
+                        </tr>
+                    </thead>
+                    <tbody id="categoryReportBody">
+                        <!-- Categories will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Warehouse Status -->
+    <div class="card">
+        <div class="card-header">
+            <h3>Estado de Almacenes</h3>
+        </div>
+        <div class="card-body">
+            <div class="table-responsive">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Almacén</th>
+                            <th>Estado</th>
+                        </tr>
+                    </thead>
+                    <tbody id="warehouseReportBody">
+                        <!-- Warehouses will be loaded here -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
 </div>

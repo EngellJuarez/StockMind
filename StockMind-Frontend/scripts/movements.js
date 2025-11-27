@@ -2,7 +2,7 @@
 
 const API_MOVEMENTS_URL = 'http://localhost:1337/api/movimientos';
 const API_PRODUCTS_URL = 'http://localhost:1337/api/productos';
-const API_WAREHOUSES_URL_MOV = 'http://localhost:1337/api/almacens'; // Use different var name to avoid conflict if loaded globally
+const API_WAREHOUSES_URL_MOV = 'http://localhost:1337/api/almacens';
 
 let allMovements = [];
 
@@ -38,11 +38,8 @@ function initMovements() {
 async function loadMovements() {
     try {
         const token = localStorage.getItem('stockmind_token');
-        // Populate relations: producto, almacen
         const response = await fetch(`${API_MOVEMENTS_URL}?populate=*&sort=Fecha:desc`, {
-            headers: {
-                'Authorization': `Bearer ${token}`
-            }
+            headers: { 'Authorization': `Bearer ${token}` }
         });
 
         if (!response.ok) throw new Error('Error loading movements');
@@ -110,19 +107,37 @@ function renderMovements(movements) {
 
     movements.forEach(mov => {
         const tr = document.createElement('tr');
-        const date = new Date(mov.Fecha).toLocaleString();
-        const productName = mov.producto ? mov.producto.Nombre : 'Producto eliminado';
-        const warehouseName = mov.almacen ? mov.almacen.Nombre : 'Almacén eliminado';
+        const datetime = new Date(mov.Fecha).toLocaleString('es-ES', {
+            day: '2-digit',
+            month: '2-digit',
+            year: 'numeric',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+        const prodName = mov.producto ? mov.producto.Nombre : '-';
+        const whName = mov.almacen ? mov.almacen.Nombre : '-';
+        const userName = mov.usuario ? mov.usuario.username : 'Admin';
 
         tr.innerHTML = `
-            <td>${date}</td>
+            <td>${datetime}</td>
+            <td>${prodName}</td>
             <td><span class="status-badge status-${mov.Tipo.toLowerCase()}">${mov.Tipo}</span></td>
-            <td>${productName}</td>
-            <td>${warehouseName}</td>
-            <td class="${mov.Tipo === 'Entrada' ? 'text-success' : 'text-danger'} font-weight-bold">
+            <td class="${mov.Tipo === 'Entrada' ? 'text-success' : 'text-danger'}" style="font-weight: bold;">
                 ${mov.Tipo === 'Entrada' ? '+' : '-'}${mov.Cantidad}
             </td>
+            <td>${whName}</td>
+            <td>${userName}</td>
             <td>${mov.Observaciones || '-'}</td>
+            <td>
+                <div style="display: flex; flex-direction: column; gap: 5px;">
+                    <button class="btn btn-sm btn-primary" onclick="editMovement('${mov.documentId}')" style="width: 100%;">
+                        Modificar
+                    </button>
+                    <button class="btn btn-sm btn-danger" onclick="deleteMovement('${mov.documentId}')" style="width: 100%;">
+                        Eliminar
+                    </button>
+                </div>
+            </td>
         `;
         tbody.appendChild(tr);
     });
@@ -130,48 +145,42 @@ function renderMovements(movements) {
 
 // Update Stats
 function updateMovementStats(movements) {
-    const totalInElement = document.getElementById('totalIn');
-    const totalOutElement = document.getElementById('totalOut');
+    // Movements today
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
 
-    // Filter for current month
-    const now = new Date();
-    const currentMonth = now.getMonth();
-    const currentYear = now.getFullYear();
-
-    const monthlyMovements = movements.filter(m => {
+    const todayMovements = movements.filter(m => {
         const d = new Date(m.Fecha);
-        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+        d.setHours(0, 0, 0, 0);
+        return d.getTime() === today.getTime();
     });
 
-    const totalIn = monthlyMovements
+    document.getElementById('movementsToday').textContent = todayMovements.length;
+
+    // Calculate balance (entries vs exits)
+    const totalIn = movements
         .filter(m => m.Tipo === 'Entrada')
         .reduce((acc, curr) => acc + curr.Cantidad, 0);
 
-    const totalOut = monthlyMovements
+    const totalOut = movements
         .filter(m => m.Tipo === 'Salida')
         .reduce((acc, curr) => acc + curr.Cantidad, 0);
 
-    if (totalInElement) totalInElement.textContent = totalIn;
-    if (totalOutElement) totalOutElement.textContent = totalOut;
+    const balance = totalIn - totalOut;
+    const balancePercent = totalOut > 0 ? Math.round((balance / totalOut) * 100) : 0;
+
+    const balanceEl = document.getElementById('balancePercentage');
+    balanceEl.textContent = (balancePercent >= 0 ? '+' : '') + balancePercent + '%';
 }
 
 // Filter Movements
 function filterMovements() {
-    const searchTerm = document.getElementById('searchMovement').value.toLowerCase();
-    const filtered = allMovements.filter(m => {
-        const productName = m.producto ? m.producto.Nombre.toLowerCase() : '';
-        const warehouseName = m.almacen ? m.almacen.Nombre.toLowerCase() : '';
-        return productName.includes(searchTerm) ||
-            warehouseName.includes(searchTerm) ||
-            m.Tipo.toLowerCase().includes(searchTerm);
-    });
-    renderMovements(filtered);
+    alert('Función de filtrado en desarrollo');
 }
 
 // Modal Functions
 function openMovementModal() {
     document.getElementById('movementForm').reset();
-    // Reset date
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     document.getElementById('movementDate').value = now.toISOString().slice(0, 16);
@@ -212,7 +221,6 @@ async function handleMovementSubmit(e) {
         if (response.ok) {
             closeMovementModal();
             loadMovements();
-            // alert('Movimiento registrado exitosamente');
         } else {
             const error = await response.json();
             alert('Error al registrar: ' + (error.error?.message || 'Unknown error'));
@@ -223,8 +231,37 @@ async function handleMovementSubmit(e) {
     }
 }
 
+// Delete Movement
+async function deleteMovement(docId) {
+    if (confirm('¿Estás seguro de eliminar este movimiento?')) {
+        try {
+            const token = localStorage.getItem('stockmind_token');
+            const response = await fetch(`${API_MOVEMENTS_URL}/${docId}`, {
+                method: 'DELETE',
+                headers: { 'Authorization': `Bearer ${token}` }
+            });
+
+            if (response.ok) {
+                loadMovements();
+            } else {
+                alert('Error al eliminar movimiento');
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('Error de conexión');
+        }
+    }
+}
+
+// Edit Movement
+function editMovement(docId) {
+    alert('Función de edición en desarrollo');
+}
+
 // Expose functions globally
 window.initMovements = initMovements;
 window.openMovementModal = openMovementModal;
 window.closeMovementModal = closeMovementModal;
 window.filterMovements = filterMovements;
+window.editMovement = editMovement;
+window.deleteMovement = deleteMovement;

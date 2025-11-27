@@ -1,0 +1,70 @@
+<div class="view-header">
+    <h2>Inteligencia Artificial - Recomendaciones</h2>
+</div>
+
+<!-- Hero Section -->
+<div class="ai-hero-section"
+    style="background: linear-gradient(135deg, #00838f 0%, #00acc1 100%); color: white; padding: 25px; border-radius: 10px; margin-bottom: 30px; box-shadow: 0 4px 15px rgba(0, 172, 193, 0.3);">
+    <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 20px;">
+        <i class="fas fa-robot" style="font-size: 1.5em;"></i>
+        <h3 style="margin: 0; font-size: 1.4em;">Centro de Inteligencia Artificial</h3>
+    </div>
+
+    <div class="ai-hero-cards"
+        style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+        <!-- Card 1 -->
+        <div class="ai-hero-card"
+            style="background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 8px; backdrop-filter: blur(5px);">
+            <h4 style="margin-top: 0; font-size: 1.1em;">Predicción de Demanda</h4>
+            <p style="font-size: 0.9em; opacity: 0.9;">Basado en histórico y tendencias estacionales</p>
+            <button class="btn btn-sm btn-outline-light"
+                style="margin-top: 10px; border-color: rgba(255,255,255,0.5);">Ver Predicciones</button>
+        </div>
+        <!-- Card 2 -->
+        <div class="ai-hero-card"
+            style="background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 8px; backdrop-filter: blur(5px);">
+            <h4 style="margin-top: 0; font-size: 1.1em;">Optimización de Stock</h4>
+            <p style="font-size: 0.9em; opacity: 0.9;">Niveles óptimos para minimizar costos</p>
+            <button class="btn btn-sm btn-outline-light"
+                style="margin-top: 10px; border-color: rgba(255,255,255,0.5);">Optimizar</button>
+        </div>
+        <!-- Card 3 -->
+        <div class="ai-hero-card"
+            style="background: rgba(255, 255, 255, 0.1); padding: 20px; border-radius: 8px; backdrop-filter: blur(5px);">
+            <h4 style="margin-top: 0; font-size: 1.1em;">Detección de Anomalías</h4>
+            <p style="font-size: 0.9em; opacity: 0.9;">Identificación automática de irregularidades</p>
+            <button class="btn btn-sm btn-outline-light"
+                style="margin-top: 10px; border-color: rgba(255,255,255,0.5);">Revisar</button>
+        </div>
+    </div>
+</div>
+
+<!-- Recommendations Table Section -->
+<div class="card">
+    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h3>Recomendaciones Activas</h3>
+        <div class="header-actions">
+            <button class="btn btn-primary" onclick="configureAI()">Configurar IA</button>
+            <button class="btn btn-primary" onclick="generateAIReport()">Generar Reporte</button>
+        </div>
+    </div>
+    <div class="card-body">
+        <div class="table-responsive">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th>TIPO</th>
+                        <th>PRODUCTO/CATEGORÍA</th>
+                        <th>RECOMENDACIÓN</th>
+                        <th>IMPACTO ESTIMADO</th>
+                        <th>PRIORIDAD</th>
+                        <th>ACCIÓN</th>
+                    </tr>
+                </thead>
+                <tbody id="aiRecommendationsBody">
+                    <!-- Populated by JS -->
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>

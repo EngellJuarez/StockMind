@@ -118,6 +118,15 @@ function loadViewScript(viewName) {
     if (viewName === 'movements') {
         if (window.initMovements) window.initMovements();
     }
+    if (viewName === 'reports') {
+        if (window.initReports) window.initReports();
+    }
+    if (viewName === 'analytics') {
+        if (window.initAnalytics) window.initAnalytics();
+    }
+    if (viewName === 'ai') {
+        if (window.initAIRecommendations) window.initAIRecommendations();
+    }
     // Agrega más vistas aquí si las tienes (ej. orders, inventory)
 }
 
