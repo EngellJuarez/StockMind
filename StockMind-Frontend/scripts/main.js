@@ -130,6 +130,10 @@ function loadViewScript(viewName) {
     if (viewName === 'inventory') {
         if (window.initInventory) window.initInventory(empresaNombre);
     }
+    if (viewName === 'orders') {
+        if (window.initOrders) window.initOrders(empresaNombre);
+    }
+
     // Agrega más vistas aquí si las tienes (ej. orders, inventory)
 }
 

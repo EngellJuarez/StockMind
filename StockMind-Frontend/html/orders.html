@@ -7,8 +7,8 @@
                 <span class="stat-title">Órdenes Pendientes</span>
                 <i class="fas fa-clipboard-list stat-icon"></i>
             </div>
-            <div class="stat-value">0</div>
-            <div class="stat-change positive">Sin datos</div>
+            <div class="stat-value" id="ordenesPendientes">0</div>
+            <div class="stat-change positive">Actualizado</div>
         </div>
         
         <div class="stat-card">
@@ -16,8 +16,8 @@
                 <span class="stat-title">Valor Total Mes</span>
                 <i class="fas fa-dollar-sign stat-icon"></i>
             </div>
-            <div class="stat-value">C$ 0</div>
-            <div class="stat-change positive">Sin datos</div>
+            <div class="stat-value" id="valorTotalMes">C$ 0</div>
+            <div class="stat-change positive">Actualizado</div>
         </div>
     </div>
 
@@ -25,8 +25,8 @@
         <div class="table-header">
             <h3 class="table-title">Órdenes Recientes</h3>
             <div class="table-actions">
-                <button class="btn btn-primary">Filtrar</button>
-                <button class="btn btn-primary">Agregar</button>
+                <button class="btn btn-primary" onclick="filterOrders()">Filtrar</button>
+                <button class="btn btn-success" onclick="addOrder()">Agregar</button>
             </div>
         </div>
         <div class="table-wrapper">
@@ -42,10 +42,93 @@
                         <th>Acción</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <!-- Sin datos -->
+                <tbody id="ordersTableBody">
+                    <!-- Datos dinámicos -->
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <!-- Modal para Agregar/Editar Orden -->
+    <div id="orderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="orderModalTitle">Agregar Orden</h3>
+                <span class="modal-close" onclick="closeOrderModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="orderForm">
+                    <input type="hidden" id="orderDocumentId" />
+                    <input type="hidden" id="orderEmpresaId" />
+                    <div class="form-group">
+                        <label for="numeroOrden">N° Orden</label>
+                        <input type="number" id="numeroOrden" name="NumeroOrden" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="orderProveedor">Proveedor</label>
+                        <select id="orderProveedor" name="proveedor" required>
+                            <option value="">Selecciona un proveedor</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fecha">Fecha</label>
+                        <input type="date" id="fecha" name="Fecha" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="total">Total</label>
+                        <input type="number" id="total" name="Total" step="0.01" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="estado">Estado</label>
+                        <select id="estado" name="Estado" required>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="En Proceso">En Proceso</option>
+                            <option value="Entregado">Entregado</option>
+                            <option value="Cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="entregaEsperada">Entrega Esperada</label>
+                        <input type="date" id="entregaEsperada" name="EntregaEsperada">
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="clearOrderForm()">Limpiar</button>
+                        <button type="submit" class="btn btn-success">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Filtrar -->
+    <div id="filterOrderModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Filtrar Órdenes</h3>
+                <span class="modal-close" onclick="closeOrderModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="filterOrderForm">
+                    <div class="form-group">
+                        <label for="filterProveedor">Proveedor</label>
+                        <input type="text" id="filterProveedor" name="Proveedor">
+                    </div>
+                    <div class="form-group">
+                        <label for="filterEstado">Estado</label>
+                        <select id="filterEstado" name="Estado">
+                            <option value="">Todos</option>
+                            <option value="Pendiente">Pendiente</option>
+                            <option value="En Proceso">En Proceso</option>
+                            <option value="Entregado">Entregado</option>
+                            <option value="Cancelado">Cancelado</option>
+                        </select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="clearFilterOrder()">Limpiar</button>
+                        <button type="submit" class="btn btn-primary">Filtrar</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
