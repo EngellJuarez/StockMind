@@ -7,8 +7,8 @@
                 <span class="stat-title">Proveedores Activos</span>
                 <i class="fas fa-industry stat-icon"></i>
             </div>
-            <div class="stat-value">0</div>
-            <div class="stat-change positive">Sin datos</div>
+            <div class="stat-value" id="proveedoresActivos">0</div>
+            <div class="stat-change positive">Actualizado</div>
         </div>
         
         <div class="stat-card">
@@ -16,8 +16,8 @@
                 <span class="stat-title">Evaluación Promedio</span>
                 <i class="fas fa-star stat-icon"></i>
             </div>
-            <div class="stat-value">0/5</div>
-            <div class="stat-change positive">Sin datos</div>
+            <div class="stat-value" id="evaluacionPromedio">0/5</div>
+            <div class="stat-change positive">Actualizado</div>
         </div>
     </div>
 
@@ -25,8 +25,8 @@
         <div class="table-header">
             <h3 class="table-title">Lista de Proveedores</h3>
             <div class="table-actions">
-                <button class="btn btn-primary">Filtrar</button>
-                <button class="btn btn-primary">Agregar</button>
+                <button class="btn btn-primary" onclick="filterSuppliers()">Filtrar</button>
+                <button class="btn btn-success" onclick="addSupplier()">Agregar</button>
             </div>
         </div>
         <div class="table-wrapper">
@@ -42,10 +42,89 @@
                         <th>Acción</th>
                     </tr>
                 </thead>
-                <tbody>
-                    <!-- Sin datos -->
+                <tbody id="suppliersTableBody">
+                    <!-- Datos dinámicos -->
                 </tbody>
             </table>
+        </div>
+    </div>
+
+    <!-- Modal para Agregar/Editar Proveedor -->
+    <div id="supplierModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="supplierModalTitle">Agregar Proveedor</h3>
+                <span class="modal-close" onclick="closeSupplierModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="supplierForm">
+                    <input type="hidden" id="supplierDocumentId" />
+                    <input type="hidden" id="supplierEmpresaId" />
+                    <div class="form-group">
+                        <label for="nombreEmpresa">Nombre Empresa</label>
+                        <input type="text" id="nombreEmpresa" name="NombreEmpresa" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="contacto">Contacto</label>
+                        <input type="text" id="contacto" name="Contacto" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="telefono">Teléfono</label>
+                        <input type="text" id="telefono" name="Telefono" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="productos">Productos (opcional)</label>
+                        <select id="productos" name="productos" multiple>
+                            <!-- Opciones dinámicas -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="evaluacion">Evaluación (0-5)</label>
+                        <input type="number" id="evaluacion" name="Evaluacion" min="0" max="5" step="0.1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="estado">Estado</label>
+                        <select id="estado" name="Estado" required>
+                            <option value="Activo">Activo</option>
+                            <option value="Inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="clearSupplierForm()">Limpiar</button>
+                        <button type="submit" class="btn btn-success">Guardar</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal para Filtrar -->
+    <div id="filterSupplierModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Filtrar Proveedores</h3>
+                <span class="modal-close" onclick="closeSupplierModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="filterSupplierForm">
+                    <div class="form-group">
+                        <label for="filterNombre">Nombre Empresa</label>
+                        <input type="text" id="filterNombre" name="NombreEmpresa">
+                    </div>
+                    <div class="form-group">
+                        <label for="filterEstado">Estado</label>
+                        <select id="filterEstado" name="Estado">
+                            <option value="">Todos</option>
+                            <option value="Activo">Activo</option>
+                            <option value="Inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="clearFilterSupplier()">Limpiar</button>
+                        <button type="submit" class="btn btn-primary">Filtrar</button>
+                    </div>
+                </form>
+            </div>
         </div>
     </div>
 </div>
