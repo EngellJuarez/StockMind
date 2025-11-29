@@ -3,7 +3,6 @@
 const API_PRODUCTS_URL_ANALYTICS = 'http://localhost:1337/api/productos';
 const API_MOVEMENTS_URL_ANALYTICS = 'http://localhost:1337/api/movimientos';
 
-let stockValueChartInstance = null;
 let movementsHistoryChartInstance = null;
 let topProductsChartInstance = null;
 
@@ -33,7 +32,6 @@ async function loadAnalyticsData() {
         const products = productsData.data || [];
         const movements = movementsData.data || [];
 
-        renderStockValueChart(products);
         renderMovementsHistoryChart(movements);
         renderTopProductsChart(movements);
 
@@ -42,50 +40,7 @@ async function loadAnalyticsData() {
     }
 }
 
-// 1. Stock Value Distribution (Pie Chart)
-function renderStockValueChart(products) {
-    const ctx = document.getElementById('stockValueChart').getContext('2d');
-
-    // Group by category and sum value (Price * Stock)
-    // Note: Assuming 'Precio' and 'Stock' fields exist. If not, we'll count items.
-    const categoryMap = {};
-
-    products.forEach(p => {
-        const categoryName = p.categoria ? p.categoria.Nombre : 'Sin Categoría';
-        // Fallback to count if Price/Stock not available or 0
-        const value = (p.Precio || 0) * (p.Stock || 1);
-        categoryMap[categoryName] = (categoryMap[categoryName] || 0) + value;
-    });
-
-    const labels = Object.keys(categoryMap);
-    const data = Object.values(categoryMap);
-
-    // Destroy existing chart if any
-    if (stockValueChartInstance) stockValueChartInstance.destroy();
-
-    stockValueChartInstance = new Chart(ctx, {
-        type: 'doughnut',
-        data: {
-            labels: labels,
-            datasets: [{
-                data: data,
-                backgroundColor: [
-                    '#4facfe', '#00f2fe', '#43e97b', '#38f9d7', '#fa709a', '#fee140'
-                ],
-                borderWidth: 1
-            }]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            plugins: {
-                legend: { position: 'right' }
-            }
-        }
-    });
-}
-
-// 2. Movements History (Line Chart)
+// 1. Movements History (Line Chart)
 function renderMovementsHistoryChart(movements) {
     const ctx = document.getElementById('movementsHistoryChart').getContext('2d');
 
@@ -145,7 +100,7 @@ function renderMovementsHistoryChart(movements) {
     });
 }
 
-// 3. Top Products (Bar Chart)
+// 2. Top Products (Bar Chart)
 function renderTopProductsChart(movements) {
     const ctx = document.getElementById('topProductsChart').getContext('2d');
 

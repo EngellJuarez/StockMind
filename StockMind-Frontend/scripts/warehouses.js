@@ -2,205 +2,238 @@
 
 const API_WAREHOUSES_URL = 'http://localhost:1337/api/almacens';
 
-let allWarehouses = [];
+let currentEditingWarehouseDocId = null;
 
-// Initialize Warehouses View
-function initWarehouses() {
-    console.log('Initializing Warehouses View');
-    loadWarehouses();
-
-    // Setup event listeners
-    const form = document.getElementById('warehouseForm');
-    if (form) {
-        form.removeEventListener('submit', handleWarehouseSubmit);
-        form.addEventListener('submit', handleWarehouseSubmit);
-    }
-
-    // Close modal on outside click
-    window.onclick = function (event) {
-        const modal = document.getElementById('warehouseModal');
-        if (event.target == modal) {
-            closeWarehouseModal();
-        }
-    }
-}
-
-// Load Warehouses
-async function loadWarehouses() {
+// Función para obtener almacenes (filtrado por empresa)
+async function getWarehouses(empresaNombre) {
     try {
-        const token = localStorage.getItem('stockmind_token');
-        const response = await fetch(API_WAREHOUSES_URL, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (!response.ok) throw new Error('Error loading warehouses');
-
+        const response = await fetch(API_WAREHOUSES_URL + '?populate=empresa');
+        if (!response.ok) throw new Error('Error al obtener almacenes');
         const data = await response.json();
-        allWarehouses = data.data || [];
-
-        renderWarehouses(allWarehouses);
-        updateWarehouseStats(allWarehouses);
+        return data.data.filter(w => w.empresa && w.empresa.Nombre === empresaNombre);
     } catch (error) {
-        console.error('Error:', error);
+        console.error('Error al obtener almacenes:', error);
+        return [];
     }
 }
 
-// Render Warehouses Table
-function renderWarehouses(warehouses) {
-    const tbody = document.getElementById('warehousesTableBody');
-    if (!tbody) return;
+// Función para obtener inventario (filtrado por empresa)
+async function getInventarioWarehouses(empresaNombre) {
+    try {
+        const response = await fetch('http://localhost:1337/api/inventarios?populate=producto,almacen,empresa');
+        if (!response.ok) throw new Error('Error al obtener inventario');
+        const data = await response.json();
+        return data.data.filter(i => i.empresa && i.empresa.Nombre === empresaNombre);
+    } catch (error) {
+        console.error('Error al obtener inventario:', error);
+        return [];
+    }
+}
 
-    tbody.innerHTML = '';
+// Función para crear almacén
+async function createWarehouse(warehouse) {
+    try {
+        const response = await fetch(API_WAREHOUSES_URL, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: warehouse })
+        });
+        if (!response.ok) throw new Error('Error al crear almacén');
+        const data = await response.json();
+        return data.data;
+    } catch (error) {
+        console.error('Error al crear almacén:', error);
+        return null;
+    }
+}
 
-    warehouses.forEach(w => {
-        const tr = document.createElement('tr');
-        const ocupacion = Math.floor(Math.random() * 100); // Placeholder
-        const productos = Math.floor(Math.random() * 1000); // Placeholder
+// Función para actualizar almacén
+async function updateWarehouse(docId, warehouse) {
+    try {
+        const response = await fetch(`${API_WAREHOUSES_URL}/${docId}`, {
+            method: 'PUT',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: warehouse })
+        });
+        if (!response.ok) throw new Error('Error al actualizar almacén');
+        const data = await response.json();
+        return data.data;
+    } catch (error) {
+        console.error('Error al actualizar almacén:', error);
+        return null;
+    }
+}
 
-        tr.innerHTML = `
-            <td><strong>${w.Nombre}</strong></td>
-            <td>${w.Ubicacion || '-'}</td>
-            <td>${w.Capacidad || '-'} m²</td>
+// Función para eliminar almacén
+async function deleteWarehouseAsync(docId) {
+    try {
+        const response = await fetch(`${API_WAREHOUSES_URL}/${docId}`, {
+            method: 'DELETE'
+        });
+        if (!response.ok) throw new Error('Error al eliminar almacén');
+        return true;
+    } catch (error) {
+        console.error('Error al eliminar almacén:', error);
+        return false;
+    }
+}
+
+// Función para cargar almacenes en la tabla
+async function loadWarehouses(empresaNombre) {
+    const warehouses = await getWarehouses(empresaNombre);
+    const inventario = await getInventarioWarehouses(empresaNombre);
+    const tableBody = document.getElementById('warehousesTableBody');
+    tableBody.innerHTML = '';
+
+    warehouses.forEach(warehouse => {
+        const estadoClass = warehouse.Estado === 'Activo' ? 'status-high' : warehouse.Estado === 'Mantenimiento' ? 'status-medium' : 'status-low';
+
+        // Calcular productos en este almacén
+        const productosEnAlmacen = inventario.filter(i => i.almacen && i.almacen.documentId === warehouse.documentId).length;
+        const ocupacion = warehouse.Capacidad > 0 ? Math.round((productosEnAlmacen / warehouse.Capacidad) * 100) : 0;
+
+        const row = document.createElement('tr');
+        row.innerHTML = `
+            <td>${warehouse.Nombre}</td>
+            <td>${warehouse.Ubicacion}</td>
+            <td>${warehouse.Capacidad} m²</td>
             <td>${ocupacion}%</td>
-            <td>${productos}</td>
-            <td><span class="status-badge status-${w.Estado.toLowerCase()}">${w.Estado}</span></td>
+            <td>${productosEnAlmacen}</td>
+            <td><span class="status-badge ${estadoClass}">${warehouse.Estado}</span></td>
             <td>
-                <div style="display: flex; flex-direction: column; gap: 5px;">
-                    <button class="btn btn-sm btn-primary" onclick="editWarehouse('${w.documentId}')" style="width: 100%;">
-                        Modificar
-                    </button>
-                    <button class="btn btn-sm btn-danger" onclick="deleteWarehouse('${w.documentId}')" style="width: 100%;">
-                        Eliminar
-                    </button>
+                <div class="table-actions-buttons">
+                    <button class="btn btn-warning" onclick="editWarehouse('${warehouse.documentId}')">Modificar</button>
+                    <button class="btn btn-danger" onclick="deleteWarehouse('${warehouse.documentId}')">Eliminar</button>
                 </div>
             </td>
         `;
-        tbody.appendChild(tr);
+        tableBody.appendChild(row);
     });
+
+    updateWarehouseStats(warehouses, inventario);
 }
 
-// Update Stats
-function updateWarehouseStats(warehouses) {
-    const activeCount = warehouses.filter(w => w.Estado === 'Activo').length;
-    document.getElementById('activeWarehouses').textContent = activeCount;
+// Función para actualizar estadísticas
+function updateWarehouseStats(warehouses, inventario) {
+    const activos = warehouses.filter(w => w.Estado === 'Activo').length;
+    const capacidadTotal = warehouses.reduce((sum, w) => sum + w.Capacidad, 0);
+    const productosTotal = inventario.length;
+    const capacidadUtilizada = capacidadTotal > 0 ? Math.round((productosTotal / capacidadTotal) * 100) : 0;
 
-    // Placeholder capacity calculation
-    const capacityUsed = 78;
-    document.getElementById('capacityUsed').textContent = capacityUsed + '%';
+    document.getElementById('activeWarehouses').textContent = activos;
+    document.getElementById('capacityUsed').textContent = document.getElementById('capacityUsed').textContent = capacidadUtilizada + '%';
 }
 
-// Modal Functions
+// Función para abrir modal de agregar
 function addWarehouse() {
-    document.getElementById('warehouseForm').reset();
-    document.getElementById('warehouseId').value = '';
+    currentEditingWarehouseDocId = null;
     document.getElementById('modalTitle').textContent = 'Agregar Almacén';
+    clearWarehouseForm();
+
     document.getElementById('warehouseModal').classList.add('active');
 }
 
+// Función para editar almacén
+async function editWarehouse(docId) {
+    currentEditingWarehouseDocId = docId;
+    const empresaNombre = localStorage.getItem('stockmind_empresa_nombre');
+    const warehouses = await getWarehouses(empresaNombre);
+    const warehouse = warehouses.find(w => w.documentId === docId);
+    if (warehouse) {
+        document.getElementById('modalTitle').textContent = 'Modificar Almacén';
+        document.getElementById('warehouseId').value = docId;
+        document.getElementById('warehouseName').value = warehouse.Nombre;
+        document.getElementById('warehouseLocation').value = warehouse.Ubicacion;
+        document.getElementById('warehouseCapacity').value = warehouse.Capacidad;
+        document.getElementById('warehouseStatus').value = warehouse.Estado;
+        document.getElementById('warehouseModal').classList.add('active');
+    }
+}
+
+// Función para eliminar almacén
+function deleteWarehouse(docId) {
+    if (confirm('¿Estás seguro de eliminar este almacén?')) {
+        deleteWarehouseAsync(docId).then(success => {
+            if (success) {
+                const empresaNombre = localStorage.getItem('stockmind_empresa_nombre');
+                loadWarehouses(empresaNombre);
+            }
+        });
+    }
+}
+
+// Función para cerrar modal
 function closeWarehouseModal() {
     document.getElementById('warehouseModal').classList.remove('active');
 }
 
-// Handle Form Submit
-async function handleWarehouseSubmit(e) {
-    e.preventDefault();
-
-    const docId = document.getElementById('warehouseId').value;
-    const method = docId ? 'PUT' : 'POST';
-    const url = docId ? `${API_WAREHOUSES_URL}/${docId}` : API_WAREHOUSES_URL;
-
-    const formData = {
-        data: {
-            Nombre: document.getElementById('warehouseName').value,
-            Ubicacion: document.getElementById('warehouseLocation').value,
-            Capacidad: document.getElementById('warehouseCapacity').value,
-            Estado: document.getElementById('warehouseStatus').value,
-            empresa: localStorage.getItem('stockmind_empresa')
-        }
-    };
-
-    try {
-        const token = localStorage.getItem('stockmind_token');
-        const response = await fetch(url, {
-            method: method,
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(formData)
-        });
-
-        if (response.ok) {
-            closeWarehouseModal();
-            loadWarehouses();
-        } else {
-            const error = await response.json();
-            alert('Error: ' + (error.error?.message || 'Unknown error'));
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Error de conexión');
-    }
+// Función para limpiar formulario
+function clearWarehouseForm() {
+    document.getElementById('warehouseForm').reset();
+    document.getElementById('warehouseId').value = '';
+    currentEditingWarehouseDocId = null;
 }
 
-// Edit Warehouse
-async function editWarehouse(docId) {
-    try {
-        const token = localStorage.getItem('stockmind_token');
-        const response = await fetch(`${API_WAREHOUSES_URL}/${docId}`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
-        if (response.ok) {
-            const data = await response.json();
-            const warehouse = data.data;
-
-            document.getElementById('warehouseId').value = warehouse.documentId;
-            document.getElementById('warehouseName').value = warehouse.Nombre;
-            document.getElementById('warehouseLocation').value = warehouse.Ubicacion || '';
-            document.getElementById('warehouseCapacity').value = warehouse.Capacidad || '';
-            document.getElementById('warehouseStatus').value = warehouse.Estado;
-
-            document.getElementById('modalTitle').textContent = 'Editar Almacén';
-            document.getElementById('warehouseModal').classList.add('active');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('Error al cargar almacén');
-    }
-}
-
-// Delete Warehouse
-async function deleteWarehouse(docId) {
-    if (confirm('¿Estás seguro de eliminar este almacén?')) {
-        try {
-            const token = localStorage.getItem('stockmind_token');
-            const response = await fetch(`${API_WAREHOUSES_URL}/${docId}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
-
-            if (response.ok) {
-                loadWarehouses();
-            } else {
-                alert('Error al eliminar almacén');
-            }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error de conexión');
-        }
-    }
-}
-
-// View Warehouse Map
+// Función para ver mapa
 function viewWarehouseMap() {
-    alert('Función de mapa en desarrollo');
+    alert('Función de mapa no implementada aún');
 }
 
-// Expose functions globally
+// Función de inicialización
+function initWarehouses(empresaNombre) {
+    loadWarehouses(empresaNombre);
+
+    // Event listener para warehouseForm
+    document.getElementById('warehouseForm').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const formData = new FormData(e.target);
+        const warehouse = Object.fromEntries(formData);
+        warehouse.empresa = await getEmpresaId(empresaNombre);
+        delete warehouse.warehouseId;
+
+        if (!warehouse.empresa || warehouse.empresa === '') {
+            delete warehouse.empresa;
+            console.log('Empresa no asignada, omitiendo');
+        }
+
+        if (!warehouse.Nombre || !warehouse.Ubicacion || !warehouse.Capacidad || !warehouse.Estado) {
+            alert('Todos los campos obligatorios deben llenarse');
+            return;
+        }
+
+        let success;
+        if (currentEditingWarehouseDocId) {
+            success = await updateWarehouse(currentEditingWarehouseDocId, warehouse);
+        } else {
+            success = await createWarehouse(warehouse);
+        }
+        if (success) {
+            loadWarehouses(empresaNombre);
+            closeWarehouseModal();
+            alert('Almacén guardado');
+        } else {
+            alert('Error al guardar');
+        }
+    });
+}
+
+// Función para obtener ID de empresa
+async function getEmpresaId(empresaNombre) {
+    try {
+        const response = await fetch(`http://localhost:1337/api/empresas?filters[Nombre][$eq]=${encodeURIComponent(empresaNombre)}`);
+        const data = await response.json();
+        return data.data && data.data.length > 0 ? data.data[0].id : null;
+    } catch (error) {
+        console.error('Error getting empresa ID:', error);
+        return null;
+    }
+}
+
+// Exponer la función globalmente
 window.initWarehouses = initWarehouses;
 window.addWarehouse = addWarehouse;
 window.editWarehouse = editWarehouse;
 window.deleteWarehouse = deleteWarehouse;
 window.closeWarehouseModal = closeWarehouseModal;
+window.clearWarehouseForm = clearWarehouseForm;
 window.viewWarehouseMap = viewWarehouseMap;

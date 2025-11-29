@@ -1,17 +1,17 @@
 // scripts/movements.js
 
 const API_MOVEMENTS_URL = 'http://localhost:1337/api/movimientos';
-const API_PRODUCTS_URL = 'http://localhost:1337/api/productos';
-const API_WAREHOUSES_URL_MOV = 'http://localhost:1337/api/almacens';
+const API_PRODUCTS_MOVEMENTS_URL = 'http://localhost:1337/api/productos';
+const API_WAREHOUSES_MOVEMENTS_URL = 'http://localhost:1337/api/almacens';
 
 let allMovements = [];
 
 // Initialize Movements View
-function initMovements() {
-    console.log('Initializing Movements View');
-    loadMovements();
-    loadProductsForSelect();
-    loadWarehousesForSelect();
+function initMovements(empresaNombre) {
+    console.log('Initializing Movements View for empresa:', empresaNombre);
+    loadMovements(empresaNombre);
+    loadProductsForSelect(empresaNombre);
+    loadWarehousesForSelect(empresaNombre);
 
     // Set default date to now
     const now = new Date();
@@ -25,27 +25,34 @@ function initMovements() {
         form.addEventListener('submit', handleMovementSubmit);
     }
 
+    // Setup filter form
+    const filterForm = document.getElementById('filterMovementForm');
+    if (filterForm) {
+        filterForm.removeEventListener('submit', handleFilterSubmit);
+        filterForm.addEventListener('submit', handleFilterSubmit);
+    }
+
     // Close modal on outside click
     window.onclick = function (event) {
         const modal = document.getElementById('movementModal');
+        const filterModal = document.getElementById('filterMovementModal');
         if (event.target == modal) {
+            closeMovementModal();
+        }
+        if (event.target == filterModal) {
             closeMovementModal();
         }
     }
 }
 
 // Load Movements History
-async function loadMovements() {
+async function loadMovements(empresaNombre) {
     try {
-        const token = localStorage.getItem('stockmind_token');
-        const response = await fetch(`${API_MOVEMENTS_URL}?populate=*&sort=Fecha:desc`, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
-
+        const response = await fetch(`${API_MOVEMENTS_URL}?populate=*&sort=Fecha:desc`);
         if (!response.ok) throw new Error('Error loading movements');
 
         const data = await response.json();
-        allMovements = data.data || [];
+        allMovements = (data.data || []).filter(m => m.empresa && m.empresa.Nombre === empresaNombre);
 
         renderMovements(allMovements);
         updateMovementStats(allMovements);
@@ -55,17 +62,14 @@ async function loadMovements() {
 }
 
 // Load Products for Select
-async function loadProductsForSelect() {
+async function loadProductsForSelect(empresaNombre) {
     try {
-        const token = localStorage.getItem('stockmind_token');
-        const response = await fetch(API_PRODUCTS_URL, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await fetch(API_PRODUCTS_MOVEMENTS_URL + '?populate=empresa');
         const data = await response.json();
         const select = document.getElementById('movementProduct');
         select.innerHTML = '<option value="">Seleccione un producto</option>';
 
-        (data.data || []).forEach(p => {
+        (data.data || []).filter(p => p.empresa && p.empresa.Nombre === empresaNombre).forEach(p => {
             const option = document.createElement('option');
             option.value = p.documentId;
             option.textContent = p.Nombre;
@@ -77,17 +81,14 @@ async function loadProductsForSelect() {
 }
 
 // Load Warehouses for Select
-async function loadWarehousesForSelect() {
+async function loadWarehousesForSelect(empresaNombre) {
     try {
-        const token = localStorage.getItem('stockmind_token');
-        const response = await fetch(API_WAREHOUSES_URL_MOV, {
-            headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const response = await fetch(API_WAREHOUSES_MOVEMENTS_URL + '?populate=empresa');
         const data = await response.json();
         const select = document.getElementById('movementWarehouse');
         select.innerHTML = '<option value="">Seleccione un almacén</option>';
 
-        (data.data || []).forEach(w => {
+        (data.data || []).filter(w => w.empresa && w.empresa.Nombre === empresaNombre).forEach(w => {
             const option = document.createElement('option');
             option.value = w.documentId;
             option.textContent = w.Nombre;
@@ -130,7 +131,7 @@ function renderMovements(movements) {
             <td>${mov.Observaciones || '-'}</td>
             <td>
                 <div style="display: flex; flex-direction: column; gap: 5px;">
-                    <button class="btn btn-sm btn-primary" onclick="editMovement('${mov.documentId}')" style="width: 100%;">
+                    <button class="btn btn-sm btn-warning" onclick="editMovement('${mov.documentId}')" style="width: 100%;">
                         Modificar
                     </button>
                     <button class="btn btn-sm btn-danger" onclick="deleteMovement('${mov.documentId}')" style="width: 100%;">
@@ -175,12 +176,34 @@ function updateMovementStats(movements) {
 
 // Filter Movements
 function filterMovements() {
-    alert('Función de filtrado en desarrollo');
+    document.getElementById('filterMovementModal').classList.add('active');
+}
+
+// Handle Filter Submit
+function handleFilterSubmit(e) {
+    e.preventDefault();
+    const formData = new FormData(e.target);
+    const filter = Object.fromEntries(formData);
+
+    let filtered = allMovements;
+    if (filter.Tipo) {
+        filtered = allMovements.filter(m => m.Tipo === filter.Tipo);
+    }
+    renderMovements(filtered);
+    closeMovementModal();
+}
+
+// Clear Filter
+function clearFilterMovement() {
+    document.getElementById('filterMovementForm').reset();
+    renderMovements(allMovements);
+    closeMovementModal();
 }
 
 // Modal Functions
 function openMovementModal() {
     document.getElementById('movementForm').reset();
+    document.getElementById('movementForm').removeAttribute('data-editing');
     const now = new Date();
     now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
     document.getElementById('movementDate').value = now.toISOString().slice(0, 16);
@@ -190,11 +213,16 @@ function openMovementModal() {
 
 function closeMovementModal() {
     document.getElementById('movementModal').classList.remove('active');
+    document.getElementById('filterMovementModal').classList.remove('active');
 }
 
 // Handle Form Submit
 async function handleMovementSubmit(e) {
     e.preventDefault();
+
+    const empresaNombre = localStorage.getItem('stockmind_empresa_nombre');
+    const empresaId = await getEmpresaId(empresaNombre);
+    const editingDocId = document.getElementById('movementForm').getAttribute('data-editing');
 
     const formData = {
         data: {
@@ -203,24 +231,49 @@ async function handleMovementSubmit(e) {
             almacen: document.getElementById('movementWarehouse').value,
             Cantidad: parseInt(document.getElementById('movementQuantity').value),
             Fecha: document.getElementById('movementDate').value,
-            Observaciones: document.getElementById('movementNotes').value
+            Observaciones: document.getElementById('movementNotes').value,
+            empresa: empresaId
         }
     };
 
+    if (!formData.data.empresa || formData.data.empresa === '') {
+        delete formData.data.empresa;
+        console.log('Empresa no asignada, omitiendo');
+    }
+
+    if (!formData.data.Tipo || !formData.data.producto || !formData.data.almacen || !formData.data.Cantidad || !formData.data.Fecha) {
+        alert('Todos los campos obligatorios deben llenarse');
+        return;
+    }
+
     try {
-        const token = localStorage.getItem('stockmind_token');
-        const response = await fetch(API_MOVEMENTS_URL, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                'Authorization': `Bearer ${token}`
-            },
-            body: JSON.stringify(formData)
-        });
+        let response;
+        if (editingDocId) {
+            // Para edición, revertir el movimiento anterior y aplicar el nuevo
+            const oldMovement = allMovements.find(m => m.documentId === editingDocId);
+            if (oldMovement) {
+                await updateInventoryForMovement(oldMovement.producto.documentId, oldMovement.Cantidad, oldMovement.Tipo === 'Entrada' ? 'Salida' : 'Entrada', empresaNombre);
+            }
+            response = await fetch(`${API_MOVEMENTS_URL}/${editingDocId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+        } else {
+            response = await fetch(API_MOVEMENTS_URL, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(formData)
+            });
+        }
 
         if (response.ok) {
+            // Actualizar inventario
+            await updateInventoryForMovement(formData.data.producto, formData.data.Cantidad, formData.data.Tipo, empresaNombre);
+
             closeMovementModal();
-            loadMovements();
+            loadMovements(empresaNombre);
+            document.getElementById('movementForm').removeAttribute('data-editing');
         } else {
             const error = await response.json();
             alert('Error al registrar: ' + (error.error?.message || 'Unknown error'));
@@ -231,31 +284,116 @@ async function handleMovementSubmit(e) {
     }
 }
 
-// Delete Movement
-async function deleteMovement(docId) {
-    if (confirm('¿Estás seguro de eliminar este movimiento?')) {
-        try {
-            const token = localStorage.getItem('stockmind_token');
-            const response = await fetch(`${API_MOVEMENTS_URL}/${docId}`, {
-                method: 'DELETE',
-                headers: { 'Authorization': `Bearer ${token}` }
-            });
+// Función para actualizar inventario basado en movimiento
+async function updateInventoryForMovement(productoDocId, cantidad, tipo, empresaNombre) {
+    try {
+        // Obtener inventario del producto
+        const response = await fetch(`http://localhost:1337/api/inventarios?populate=producto,empresa&filters[producto][documentId][$eq]=${productoDocId}`);
+        const data = await response.json();
+        const inventario = data.data.filter(i => i.empresa && i.empresa.Nombre === empresaNombre)[0];
 
-            if (response.ok) {
-                loadMovements();
-            } else {
-                alert('Error al eliminar movimiento');
+        if (inventario) {
+            // Actualizar stock
+            let nuevoStock = inventario.StockActual;
+            if (tipo === 'Entrada') {
+                nuevoStock += cantidad;
+            } else if (tipo === 'Salida') {
+                nuevoStock -= cantidad;
             }
-        } catch (error) {
-            console.error('Error:', error);
-            alert('Error de conexión');
+
+            // Asegurar no negativo
+            nuevoStock = Math.max(0, nuevoStock);
+
+            const updateResponse = await fetch(`http://localhost:1337/api/inventarios/${inventario.documentId}`, {
+                method: 'PUT',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ data: { StockActual: nuevoStock } })
+            });
+            if (!updateResponse.ok) throw new Error('Error al actualizar inventario');
+        } else {
+            // Crear inventario si no existe
+            const empresaId = await getEmpresaId(empresaNombre);
+            const createResponse = await fetch('http://localhost:1337/api/inventarios', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    data: {
+                        producto: productoDocId,
+                        StockActual: tipo === 'Entrada' ? cantidad : 0,
+                        StockMinimo: 0,
+                        empresa: empresaId
+                    }
+                })
+            });
+            if (!createResponse.ok) throw new Error('Error al crear inventario');
         }
+    } catch (error) {
+        console.error('Error al actualizar inventario:', error);
+    }
+}
+
+// Delete Movement
+async function deleteMovementAsync(docId) {
+    try {
+        // Obtener el movimiento antes de eliminar
+        const response = await fetch(`${API_MOVEMENTS_URL}/${docId}?populate=*`);
+        const data = await response.json();
+        const movement = data.data;
+
+        // Revertir inventario
+        const empresaNombre = localStorage.getItem('stockmind_empresa_nombre');
+        if (movement) {
+            await updateInventoryForMovement(movement.producto.documentId, movement.Cantidad, movement.Tipo === 'Entrada' ? 'Salida' : 'Entrada', empresaNombre);
+        }
+
+        // Eliminar movimiento
+        const deleteResponse = await fetch(`${API_MOVEMENTS_URL}/${docId}`, {
+            method: 'DELETE'
+        });
+
+        if (deleteResponse.ok) {
+            loadMovements(empresaNombre);
+        } else {
+            alert('Error al eliminar movimiento');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        alert('Error de conexión');
+    }
+}
+
+// Delete Movement
+function deleteMovement(docId) {
+    if (confirm('¿Estás seguro de eliminar este movimiento?')) {
+        deleteMovementAsync(docId);
     }
 }
 
 // Edit Movement
 function editMovement(docId) {
-    alert('Función de edición en desarrollo');
+    const movement = allMovements.find(m => m.documentId === docId);
+    if (movement) {
+        document.getElementById('movementType').value = movement.Tipo;
+        document.getElementById('movementProduct').value = movement.producto ? movement.producto.documentId : '';
+        document.getElementById('movementWarehouse').value = movement.almacen ? movement.almacen.documentId : '';
+        document.getElementById('movementQuantity').value = movement.Cantidad;
+        document.getElementById('movementDate').value = new Date(movement.Fecha).toISOString().slice(0, 16);
+        document.getElementById('movementNotes').value = movement.Observaciones || '';
+        document.getElementById('movementModal').classList.add('active');
+        document.getElementById('movementForm').setAttribute('data-editing', docId);
+    }
+}
+
+// Función para obtener ID de empresa
+async function getEmpresaId(empresaNombre) {
+    try {
+        const response = await fetch(`http://localhost:1337/api/empresas?filters[Nombre][$eq]=${encodeURIComponent(empresaNombre)}`);
+        const data = await response.json();
+        return data.data && data.data.length > 0 ? data.data[0].id : null;
+    } catch (error) {
+        console.error('Error getting empresa ID:', error);
+        return null;
+    }
 }
 
 // Expose functions globally
@@ -265,3 +403,4 @@ window.closeMovementModal = closeMovementModal;
 window.filterMovements = filterMovements;
 window.editMovement = editMovement;
 window.deleteMovement = deleteMovement;
+window.clearFilterMovement = clearFilterMovement;

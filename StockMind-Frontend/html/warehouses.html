@@ -1,58 +1,45 @@
-<div class="view-header">
+<div id="warehousesView" class="view">
     <h2>Gestión de Almacenes</h2>
-</div>
+    
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">Almacenes Activos</span>
+                <i class="fas fa-store stat-icon"></i>
+            </div>
+            <div class="stat-value" id="activeWarehouses">0</div>
+            <div class="stat-change positive">Operativos</div>
+        </div>
+        
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">Capacidad Utilizada</span>
+                <i class="fas fa-chart-pie stat-icon"></i>
+            </div>
+            <div class="stat-value" id="capacityUsed">0%</div>
+            <div class="stat-change positive">Óptimo</div>
+        </div>
+    </div>
 
-<!-- Top Metrics -->
-<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
-    <div class="stat-card">
-        <div class="stat-info">
-            <p style="font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 8px;">ALMACENES ACTIVOS
-            </p>
-            <h3 style="font-size: 32px; margin: 0;" id="activeWarehouses">3</h3>
-            <p style="font-size: 13px; color: #00c853; margin-top: 4px;">Operativos</p>
+    <div class="table-container">
+        <div class="table-header">
+            <h3 class="table-title">Lista de Almacenes</h3>
+            <div class="table-actions">
+                <button class="btn btn-secondary" onclick="viewWarehouseMap()">Ver Mapa</button>
+                <button class="btn btn-success" onclick="addWarehouse()">Agregar</button>
+            </div>
         </div>
-        <div class="stat-icon" style="background-color: #e3f2fd; color: #1976d2;">
-            <i class="fas fa-store"></i>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-info">
-            <p style="font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 8px;">CAPACIDAD UTILIZADA
-            </p>
-            <h3 style="font-size: 32px; margin: 0;" id="capacityUsed">78%</h3>
-            <p style="font-size: 13px; color: #ff9800; margin-top: 4px;">Óptimo</p>
-        </div>
-        <div class="stat-icon" style="background-color: #fff3e0; color: #f57c00;">
-            <i class="fas fa-chart-pie"></i>
-        </div>
-    </div>
-</div>
-
-<!-- Warehouses List -->
-<div class="card" style="margin-top: 24px;">
-    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-        <h3>Lista de Almacenes</h3>
-        <div style="display: flex; gap: 10px;">
-            <button class="btn btn-secondary" onclick="viewWarehouseMap()">
-                <i class="fas fa-map-marked-alt"></i> Ver Mapa
-            </button>
-            <button class="btn btn-primary" onclick="addWarehouse()">
-                <i class="fas fa-plus"></i> Agregar
-            </button>
-        </div>
-    </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table" id="warehousesTable">
+        <div class="table-wrapper">
+            <table class="table">
                 <thead>
                     <tr>
-                        <th>NOMBRE</th>
-                        <th>UBICACIÓN</th>
-                        <th>CAPACIDAD</th>
-                        <th>OCUPACIÓN</th>
-                        <th>PRODUCTOS</th>
-                        <th>ESTADO</th>
-                        <th>ACCIÓN</th>
+                        <th>Nombre</th>
+                        <th>Ubicación</th>
+                        <th>Capacidad</th>
+                        <th>Ocupación</th>
+                        <th>Productos</th>
+                        <th>Estado</th>
+                        <th>Acción</th>
                     </tr>
                 </thead>
                 <tbody id="warehousesTableBody">
@@ -61,41 +48,43 @@
             </table>
         </div>
     </div>
-</div>
 
-<!-- Warehouse Modal -->
-<div id="warehouseModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3 id="modalTitle">Agregar Almacén</h3>
-            <button class="close-btn" onclick="closeWarehouseModal()">&times;</button>
+    <!-- Warehouse Modal -->
+    <div id="warehouseModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 id="modalTitle">Agregar Almacén</h3>
+                <span class="modal-close" onclick="closeWarehouseModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="warehouseForm">
+                    <input type="hidden" id="warehouseId" />
+                    <div class="form-group">
+                        <label for="warehouseName">Nombre del Almacén</label>
+                        <input type="text" id="warehouseName" name="Nombre" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="warehouseLocation">Ubicación</label>
+                        <input type="text" id="warehouseLocation" name="Ubicacion" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="warehouseCapacity">Capacidad (m²)</label>
+                        <input type="number" id="warehouseCapacity" name="Capacidad" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="warehouseStatus">Estado</label>
+                        <select id="warehouseStatus" name="Estado" required>
+                            <option value="Activo">Activo</option>
+                            <option value="Mantenimiento">Mantenimiento</option>
+                            <option value="Inactivo">Inactivo</option>
+                        </select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeWarehouseModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Guardar</button>
+                    </div>
+                </form>
+            </div>
         </div>
-        <form id="warehouseForm">
-            <input type="hidden" id="warehouseId">
-            <div class="form-group">
-                <label for="warehouseName">Nombre del Almacén</label>
-                <input type="text" id="warehouseName" name="Nombre" required>
-            </div>
-            <div class="form-group">
-                <label for="warehouseLocation">Ubicación</label>
-                <input type="text" id="warehouseLocation" name="Ubicacion" required>
-            </div>
-            <div class="form-group">
-                <label for="warehouseCapacity">Capacidad (m²)</label>
-                <input type="text" id="warehouseCapacity" name="Capacidad" required placeholder="ej: 1500">
-            </div>
-            <div class="form-group">
-                <label for="warehouseStatus">Estado</label>
-                <select id="warehouseStatus" name="Estado" required>
-                    <option value="Activo">Activo</option>
-                    <option value="Mantenimiento">Mantenimiento</option>
-                    <option value="Inactivo">Inactivo</option>
-                </select>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeWarehouseModal()">Cancelar</button>
-                <button type="submit" class="btn btn-primary">Guardar</button>
-            </div>
-        </form>
     </div>
 </div>

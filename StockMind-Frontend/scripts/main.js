@@ -96,7 +96,7 @@ function loadView(viewName) {
 
 // Función para cargar script específico de la vista
 function loadViewScript(viewName) {
-    const empresaNombre = localStorage.getItem('stockmind_empresa_nombre');  // Cambia a nombre
+    const empresaNombre = localStorage.getItem('stockmind_empresa_nombre');
     if (!empresaNombre) {
         alert('No tienes empresa asignada');
         showLogin();
@@ -113,19 +113,16 @@ function loadViewScript(viewName) {
         if (window.initSuppliers) window.initSuppliers(empresaNombre);
     }
     if (viewName === 'warehouses') {
-        if (window.initWarehouses) window.initWarehouses();
+        if (window.initWarehouses) window.initWarehouses(empresaNombre);
     }
     if (viewName === 'movements') {
-        if (window.initMovements) window.initMovements();
+        if (window.initMovements) window.initMovements(empresaNombre);
     }
     if (viewName === 'reports') {
-        if (window.initReports) window.initReports();
+        if (window.initReports) window.initReports(empresaNombre);
     }
     if (viewName === 'analytics') {
-        if (window.initAnalytics) window.initAnalytics();
-    }
-    if (viewName === 'ai') {
-        if (window.initAIRecommendations) window.initAIRecommendations();
+        if (window.initAnalytics) window.initAnalytics(empresaNombre);
     }
     if (viewName === 'inventory') {
         if (window.initInventory) window.initInventory(empresaNombre);
@@ -133,8 +130,9 @@ function loadViewScript(viewName) {
     if (viewName === 'orders') {
         if (window.initOrders) window.initOrders(empresaNombre);
     }
-
-    // Agrega más vistas aquí si las tienes (ej. orders, inventory)
+    if (viewName === 'panel') {
+        if (window.initPanel) window.initPanel(empresaNombre);
+    }
 }
 
 // Navigation

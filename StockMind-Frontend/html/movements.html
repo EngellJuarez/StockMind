@@ -1,58 +1,46 @@
-<div class="view-header">
+<div id="movementsView" class="view">
     <h2>Movimientos</h2>
-</div>
 
-<!-- Top Metrics -->
-<div class="stats-grid" style="grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));">
-    <div class="stat-card">
-        <div class="stat-info">
-            <p style="font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 8px;">MOVIMIENTOS HOY</p>
-            <h3 style="font-size: 32px; margin: 0;" id="movementsToday">47</h3>
-            <p style="font-size: 13px; color: #00c853; margin-top: 4px;">Alta actividad</p>
+    <div class="stats-grid">
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">Movimientos Hoy</span>
+                <i class="fas fa-exchange-alt stat-icon"></i>
+            </div>
+            <div class="stat-value" id="movementsToday">0</div>
+            <div class="stat-change positive">Alta actividad</div>
         </div>
-        <div class="stat-icon" style="background-color: #e3f2fd; color: #1976d2;">
-            <i class="fas fa-exchange-alt"></i>
-        </div>
-    </div>
-    <div class="stat-card">
-        <div class="stat-info">
-            <p style="font-size: 12px; color: #666; text-transform: uppercase; margin-bottom: 8px;">ENTRADAS VS SALIDAS
-            </p>
-            <h3 style="font-size: 32px; margin: 0;" id="balancePercentage">+15%</h3>
-            <p style="font-size: 13px; color: #00c853; margin-top: 4px;">Balance positivo</p>
-        </div>
-        <div class="stat-icon" style="background-color: #fff3e0; color: #f57c00;">
-            <i class="fas fa-balance-scale"></i>
-        </div>
-    </div>
-</div>
 
-<!-- Movements History Table -->
-<div class="card" style="margin-top: 24px;">
-    <div class="card-header" style="display: flex; justify-content: space-between; align-items: center;">
-        <h3>Historial de Movimientos</h3>
-        <div style="display: flex; gap: 10px;">
-            <button class="btn btn-secondary" onclick="filterMovements()">
-                <i class="fas fa-filter"></i> Filtrar
-            </button>
-            <button class="btn btn-primary" onclick="openMovementModal()">
-                <i class="fas fa-plus"></i> Agregar
-            </button>
+        <div class="stat-card">
+            <div class="stat-header">
+                <span class="stat-title">Entradas vs Salidas</span>
+                <i class="fas fa-balance-scale stat-icon"></i>
+            </div>
+            <div class="stat-value" id="balancePercentage">+0%</div>
+            <div class="stat-change positive">Balance positivo</div>
         </div>
     </div>
-    <div class="card-body">
-        <div class="table-responsive">
-            <table class="table" id="movementsTable">
+
+    <div class="table-container">
+        <div class="table-header">
+            <h3 class="table-title">Historial de Movimientos</h3>
+            <div class="table-actions">
+                <button class="btn btn-primary" onclick="filterMovements()">Filtrar</button>
+                <button class="btn btn-success" onclick="openMovementModal()">Agregar</button>
+            </div>
+        </div>
+        <div class="table-wrapper">
+            <table class="table">
                 <thead>
                     <tr>
-                        <th>FECHA/HORA</th>
-                        <th>PRODUCTO</th>
-                        <th>TIPO</th>
-                        <th>CANTIDAD</th>
-                        <th>ALMACÉN</th>
-                        <th>USUARIO</th>
-                        <th>OBSERVACIONES</th>
-                        <th>ACCIÓN</th>
+                        <th>Fecha/Hora</th>
+                        <th>Producto</th>
+                        <th>Tipo</th>
+                        <th>Cantidad</th>
+                        <th>Almacén</th>
+                        <th>Usuario</th>
+                        <th>Observaciones</th>
+                        <th>Acción</th>
                     </tr>
                 </thead>
                 <tbody id="movementsTableBody">
@@ -61,54 +49,83 @@
             </table>
         </div>
     </div>
-</div>
 
-<!-- Movement Modal -->
-<div id="movementModal" class="modal">
-    <div class="modal-content">
-        <div class="modal-header">
-            <h3>Registrar Movimiento</h3>
-            <button class="close-btn" onclick="closeMovementModal()">&times;</button>
+    <!-- Movement Modal -->
+    <div id="movementModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Registrar Movimiento</h3>
+                <span class="modal-close" onclick="closeMovementModal()">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="movementForm">
+                    <div class="form-group">
+                        <label for="movementType">Tipo de Movimiento</label>
+                        <select id="movementType" name="Tipo" required>
+                            <option value="Entrada">Entrada</option>
+                            <option value="Salida">Salida</option>
+                            <option value="Ajuste">Ajuste</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="movementProduct">Producto</label>
+                        <select id="movementProduct" name="producto" required>
+                            <option value="">Seleccione un producto</option>
+                            <!-- Products will be loaded here -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="movementWarehouse">Almacén</label>
+                        <select id="movementWarehouse" name="almacen" required>
+                            <option value="">Seleccione un almacén</option>
+                            <!-- Warehouses will be loaded here -->
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="movementQuantity">Cantidad</label>
+                        <input type="number" id="movementQuantity" name="Cantidad" min="1" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="movementDate">Fecha</label>
+                        <input type="datetime-local" id="movementDate" name="Fecha" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="movementNotes">Observaciones</label>
+                        <textarea id="movementNotes" name="Observaciones" rows="3"></textarea>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="closeMovementModal()">Cancelar</button>
+                        <button type="submit" class="btn btn-success">Guardar</button>
+                    </div>
+                </form>
+            </div>
         </div>
-        <form id="movementForm">
-            <div class="form-group">
-                <label for="movementType">Tipo de Movimiento</label>
-                <select id="movementType" name="Tipo" required>
-                    <option value="Entrada">Entrada</option>
-                    <option value="Salida">Salida</option>
-                    <option value="Ajuste">Ajuste</option>
-                </select>
+    </div>
+
+    <!-- Filter Modal -->
+    <div id="filterMovementModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Filtrar Movimientos</h3>
+                <span class="modal-close" onclick="closeMovementModal()">&times;</span>
             </div>
-            <div class="form-group">
-                <label for="movementProduct">Producto</label>
-                <select id="movementProduct" name="producto" required>
-                    <option value="">Seleccione un producto</option>
-                    <!-- Products will be loaded here -->
-                </select>
+            <div class="modal-body">
+                <form id="filterMovementForm">
+                    <div class="form-group">
+                        <label for="filterTipo">Tipo</label>
+                        <select id="filterTipo" name="Tipo">
+                            <option value="">Todos</option>
+                            <option value="Entrada">Entrada</option>
+                            <option value="Salida">Salida</option>
+                            <option value="Ajuste">Ajuste</option>
+                        </select>
+                    </div>
+                    <div class="modal-actions">
+                        <button type="button" class="btn btn-secondary" onclick="clearFilterMovement()">Limpiar</button>
+                        <button type="submit" class="btn btn-primary">Filtrar</button>
+                    </div>
+                </form>
             </div>
-            <div class="form-group">
-                <label for="movementWarehouse">Almacén</label>
-                <select id="movementWarehouse" name="almacen" required>
-                    <option value="">Seleccione un almacén</option>
-                    <!-- Warehouses will be loaded here -->
-                </select>
-            </div>
-            <div class="form-group">
-                <label for="movementQuantity">Cantidad</label>
-                <input type="number" id="movementQuantity" name="Cantidad" min="1" required>
-            </div>
-            <div class="form-group">
-                <label for="movementDate">Fecha</label>
-                <input type="datetime-local" id="movementDate" name="Fecha" required>
-            </div>
-            <div class="form-group">
-                <label for="movementNotes">Observaciones</label>
-                <textarea id="movementNotes" name="Observaciones" rows="3"></textarea>
-            </div>
-            <div class="modal-footer">
-                <button type="button" class="btn btn-secondary" onclick="closeMovementModal()">Cancelar</button>
-                <button type="submit" class="btn btn-primary">Registrar</button>
-            </div>
-        </form>
+        </div>
     </div>
 </div>
