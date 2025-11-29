@@ -1,137 +1,136 @@
 // scripts/reports.js
 
-const API_PRODUCTS_URL_REPORTS = 'http://localhost:1337/api/productos';
-const API_MOVEMENTS_URL_REPORTS = 'http://localhost:1337/api/movimientos';
-const API_WAREHOUSES_URL_REPORTS = 'http://localhost:1337/api/almacens';
-
-// Initialize Reports View
-function initReports() {
-    console.log('Initializing Reports View');
-    loadReportsData();
-}
-
-// Load all data for reports
-async function loadReportsData() {
+// Función para obtener productos (filtrado por empresa)
+async function getProductosReports(empresaNombre) {
     try {
-        const token = localStorage.getItem('stockmind_token');
-
-        // Fetch all data in parallel
-        const [productsRes, movementsRes, warehousesRes] = await Promise.all([
-            fetch(`${API_PRODUCTS_URL_REPORTS}?populate=categoria`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            }),
-            fetch(`${API_MOVEMENTS_URL_REPORTS}?populate=*&sort=Fecha:desc`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            }),
-            fetch(`${API_WAREHOUSES_URL_REPORTS}`, {
-                headers: { 'Authorization': `Bearer ${token}` }
-            })
-        ]);
-
-        const productsData = await productsRes.json();
-        const movementsData = await movementsRes.json();
-        const warehousesData = await warehousesRes.json();
-
-        const products = productsData.data || [];
-        const movements = movementsData.data || [];
-        const warehouses = warehousesData.data || [];
-
-        // Update stats
-        updateReportStats(products, movements, warehouses);
-
-        // Generate reports
-        generateCategoryReport(products);
-        generateWarehouseReport(warehouses);
-
+        const response = await fetch('http://localhost:1337/api/productos?populate=empresa');
+        if (!response.ok) throw new Error('Error al obtener productos');
+        const data = await response.json();
+        return data.data.filter(p => p.empresa && p.empresa.Nombre === empresaNombre);
     } catch (error) {
-        console.error('Error loading reports data:', error);
+        console.error('Error al obtener productos:', error);
+        return [];
     }
 }
 
-// Update main statistics
-function updateReportStats(products, movements, warehouses) {
-    // Placeholder values - can be calculated from actual data
-    document.getElementById('totalReportsGenerated').textContent = '127';
-    document.getElementById('totalAutomaticReports').textContent = '15';
-
-    // Update last generated dates (placeholder)
-    const today = new Date().toLocaleDateString('es-ES');
-    document.getElementById('lastInventoryReport').textContent = today;
-    document.getElementById('lastLowStockReport').textContent = today;
-    document.getElementById('lastSalesReport').textContent = '-';
-}
-
-// Generate products by category report
-function generateCategoryReport(products) {
-    const tbody = document.getElementById('categoryReportBody');
-    tbody.innerHTML = '';
-
-    // Group by category
-    const categoryMap = {};
-    products.forEach(p => {
-        const categoryName = p.categoria ? p.categoria.Nombre : 'Sin Categoría';
-        categoryMap[categoryName] = (categoryMap[categoryName] || 0) + 1;
-    });
-
-    // Sort by count descending
-    const sortedCategories = Object.entries(categoryMap)
-        .sort((a, b) => b[1] - a[1]);
-
-    if (sortedCategories.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="2" style="text-align: center;">No hay datos</td></tr>';
-        return;
+// Función para obtener inventario (filtrado por empresa)
+async function getInventarioReports(empresaNombre) {
+    try {
+        const response = await fetch(API_INVENTARIO_PANEL_URL + '?populate=*');
+        if (!response.ok) throw new Error('Error al obtener inventario');
+        const data = await response.json();
+        return data.data.filter(i => i.empresa && i.empresa.Nombre === empresaNombre);
+    } catch (error) {
+        console.error('Error al obtener inventario:', error);
+        return [];
     }
-
-    sortedCategories.forEach(([category, count]) => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${category}</td>
-            <td><strong>${count}</strong></td>
-        `;
-        tbody.appendChild(tr);
-    });
 }
 
-// Generate warehouse status report
-function generateWarehouseReport(warehouses) {
-    const tbody = document.getElementById('warehouseReportBody');
-    tbody.innerHTML = '';
-
-    if (warehouses.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="2" style="text-align: center;">No hay almacenes</td></tr>';
-        return;
+// Función para obtener órdenes (filtrado por empresa)
+async function getOrdenesReports(empresaNombre) {
+    try {
+        const response = await fetch('http://localhost:1337/api/ordens?populate=empresa');
+        if (!response.ok) throw new Error('Error al obtener órdenes');
+        const data = await response.json();
+        return data.data.filter(o => o.empresa && o.empresa.Nombre === empresaNombre);
+    } catch (error) {
+        console.error('Error al obtener órdenes:', error);
+        return [];
     }
+}
 
-    warehouses.forEach(w => {
-        const tr = document.createElement('tr');
-        tr.innerHTML = `
-            <td>${w.Nombre}</td>
-            <td><span class="status-badge status-${w.Estado.toLowerCase()}">${w.Estado}</span></td>
-        `;
-        tbody.appendChild(tr);
+// Función para obtener movimientos (filtrado por empresa)
+async function getMovimientosReports(empresaNombre) {
+    try {
+        const response = await fetch('http://localhost:1337/api/movimientos?populate=empresa');
+        if (!response.ok) throw new Error('Error al obtener movimientos');
+        const data = await response.json();
+        return data.data.filter(m => m.empresa && m.empresa.Nombre === empresaNombre);
+    } catch (error) {
+        console.error('Error al obtener movimientos:', error);
+        return [];
+    }
+}
+
+// Función para cargar stats de reportes
+async function loadReportsStats(empresaNombre) {
+    const productos = await getProductosReports(empresaNombre);
+    const inventario = await getInventarioReports(empresaNombre);
+    const ordenes = await getOrdenesReports(empresaNombre);
+    const movimientos = await getMovimientosReports(empresaNombre);
+
+    const totalProductos = productos.length;
+    const valorInventario = inventario.reduce((sum, i) => sum + (i.StockActual * (i.producto ? i.producto.PrecioVenta : 0)), 0);
+    const ordenesPendientes = ordenes.filter(o => o.Estado === 'Pendiente').length;
+    const movimientosHoy = movimientos.filter(m => {
+        const hoy = new Date();
+        hoy.setHours(0, 0, 0, 0);
+        const fechaMov = new Date(m.Fecha);
+        fechaMov.setHours(0, 0, 0, 0);
+        return fechaMov.getTime() === hoy.getTime();
+    }).length;
+
+    document.getElementById('reportTotalProductos').textContent = totalProductos;
+    document.getElementById('reportValorInventario').textContent = `C$ ${valorInventario.toFixed(2)}`;
+    document.getElementById('reportOrdenesPendientes').textContent = ordenesPendientes;
+    document.getElementById('reportMovimientosHoy').textContent = movimientosHoy;
+}
+
+// Función para actualizar fecha de generación
+function updateReportDate(reportType) {
+    const now = new Date().toLocaleString('es-ES');
+    const rows = document.querySelectorAll('#reportsTableBody tr');
+    rows.forEach(row => {
+        const cells = row.querySelectorAll('td');
+        if (cells[0].textContent.includes(reportType)) {
+            cells[2].textContent = now;
+        }
     });
 }
 
-// Report action functions
-function scheduleReport() {
-    alert('Función de programación en desarrollo');
+// Función para generar reporte de inventario
+function generateInventoryReport() {
+    alert('Generando reporte de inventario...');
+    updateReportDate('Inventario');
+    // Aquí puedes implementar la lógica para generar y descargar el reporte
 }
 
-function generateReport() {
-    alert('Función de generación en desarrollo');
+// Función para generar reporte de movimientos
+function generateMovementsReport() {
+    alert('Generando reporte de movimientos...');
+    updateReportDate('Movimientos');
+    // Aquí puedes implementar la lógica para generar y descargar el reporte
 }
 
-function generateSpecificReport(type) {
-    alert(`Generando reporte de ${type}...`);
+// Función para generar reporte de órdenes
+function generateOrdersReport() {
+    alert('Generando reporte de órdenes...');
+    updateReportDate('Órdenes');
+    // Aquí puedes implementar la lógica para generar y descargar el reporte
 }
 
-function configureReport(type) {
-    alert(`Configurando reporte de ${type}...`);
+// Función para generar reporte de proveedores
+function generateSuppliersReport() {
+    alert('Generando reporte de proveedores...');
+    updateReportDate('Proveedores');
+    // Aquí puedes implementar la lógica para generar y descargar el reporte
 }
 
-// Expose functions globally
+// Función para exportar reporte
+function exportReport() {
+    alert('Exportando reporte...');
+    // Aquí puedes implementar la lógica para exportar el reporte
+}
+
+// Función de inicialización
+function initReports(empresaNombre) {
+    loadReportsStats(empresaNombre);
+}
+
+// Exponer la función globalmente
 window.initReports = initReports;
-window.scheduleReport = scheduleReport;
-window.generateReport = generateReport;
-window.generateSpecificReport = generateSpecificReport;
-window.configureReport = configureReport;
+window.generateInventoryReport = generateInventoryReport;
+window.generateMovementsReport = generateMovementsReport;
+window.generateOrdersReport = generateOrdersReport;
+window.generateSuppliersReport = generateSuppliersReport;
+window.exportReport = exportReport;
